@@ -1,7 +1,7 @@
 wheelvel_t *local_wheelvel_t;// Internal pointer used to access the Per-wheel velocity command.
 
 #define MAX_SPEED  4095 // Max pwm 
-#define MIN_SPEED  100  // Min pwm
+#define MIN_SPEED  5  // Min pwm
 //#define INTG_CAP   // Cap the integrator term
 
 #define M1_H  25
@@ -15,7 +15,7 @@ wheelvel_t *local_wheelvel_t;// Internal pointer used to access the Per-wheel ve
 
 // TODO : Retune to get better input response.
 motor_var_t omni_m1_t = {
-  .motor_Kp = 4.9,// Motor 1 Kp
+  .motor_Kp = 4.1,// Motor 1 Kp
   .motor_Ki = 0.14,// Motor 1 Ki
 
   .curr_speed = 0.0,
@@ -88,8 +88,9 @@ void motor_doPID(motor_var_t *motor_ptr_t, float sp_speed) {
 
   error_percent = motor_ptr_t->e_speed / sp_speed;
 
-  if(error_percent < 0.90)
-    motor_ptr_t->Intg_e_speed += motor_ptr_t->e_speed * motor_ptr_t->motor_Ki;
+  motor_ptr_t->Intg_e_speed += motor_ptr_t->e_speed * motor_ptr_t->motor_Ki;
+
+  //motor_ptr_t->Intg_e_speed = constrain(motor_ptr_t->Intg_e_speed, -512.0, 512.0);
     
   motor_ptr_t->speed_cmd =
     round(
