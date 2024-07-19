@@ -1,10 +1,10 @@
 // TODO : use fixed-point math for speed and resource.
 
-#define DISTANCE_TOL 0.03f
-#define ROTATION_TOL 0.03f
+#define DISTANCE_TOL 0.01f
+#define ROTATION_TOL 0.028f
 
 pidConst_t pid_walk_t;// PID constant for linear motion
-pidConst_t pid_heading_t;// PID constant for heading control
+pidConst_t pid_twizzles_t;// PID constant for twizzles rotate control
 pidConst_t pid_rotate_t;// PID constant for angular motion
 
 void maneuv3r_init(odometry_t *robot_odom) {
@@ -32,9 +32,9 @@ void maneuv3r_pidInit(
   float min_walk,
   float max_walk,
 
-  float Kp_heading,
-  float Ki_heading,
-  float Kd_heading,
+  float Kp_twizzles,
+  float Ki_twizzles,
+  float Kd_twizzles,
 
   float Kp_rotate,
   float Ki_rotate,
@@ -48,9 +48,9 @@ void maneuv3r_pidInit(
   pid_walk_t.min_vlin = min_walk;
   pid_walk_t.max_vlin = max_walk;
 
-  pid_heading_t.Kp =  Kp_heading;
-  pid_heading_t.Ki =  Ki_heading;
-  pid_heading_t.Kd =  Kd_heading;
+  pid_twizzles_t.Kp =  Kp_twizzles;
+  pid_twizzles_t.Ki =  Ki_twizzles;
+  pid_twizzles_t.Kd =  Kd_twizzles;
 
   pid_rotate_t.Kp = Kp_rotate;
   pid_rotate_t.Ki = Ki_rotate;
@@ -347,14 +347,14 @@ uint8_t maneuv3r_twizzlesTracker(odometry_t *robot_odom, cmdvel_t *robot_cmd, fl
         twizzlestracker_t.e_orient =  twizzlestracker_t.initial_orient - robot_odom->pos_az;// pos_az is highly recommended to derive from either Gyro, Mag or fusion of both
       
         // PID controller algorithm for rotating
-        twizzlestracker_t.Intg_e_orient += twizzlestracker_t.e_orient * pid_rotate_t.Ki;// I term
+        twizzlestracker_t.Intg_e_orient += twizzlestracker_t.e_orient * pid_twizzles_t.Ki;// I term
         twizzlestracker_t.Diff_e_orient =
           (twizzlestracker_t.e_orient - twizzlestracker_t.prev_e_orient)
-          * pid_rotate_t.Kd;                                                          // D term
+          * pid_twizzles_t.Kd;                                                          // D term
         twizzlestracker_t.prev_e_orient = twizzlestracker_t.e_orient;                 // make a unit delay
       
         twizzlestracker_t.cmd_avel =
-          (twizzlestracker_t.e_orient * pid_rotate_t.Kp) +
+          (twizzlestracker_t.e_orient * pid_twizzles_t.Kp) +
           twizzlestracker_t.Intg_e_orient +
           twizzlestracker_t.Diff_e_orient;
 
@@ -436,7 +436,21 @@ uint8_t maneuv3r_twizzlesTracker(odometry_t *robot_odom, cmdvel_t *robot_cmd, fl
       }
       break;
 
-    case 2:// Clean up and exit state
+    // Inter-state delay
+
+    case 2:
+      maneuv3r_twizzlesTracker_FSM = 3;
+      break;
+
+    case 3:
+      maneuv3r_twizzlesTracker_FSM = 4;
+      break;
+
+    case 4:
+      maneuv3r_twizzlesTracker_FSM = 5;
+      break;
+
+    case 5:// Clean up and exit state
     {
       twizzlestracker_t.Intg_e_dist = 0.0;
       twizzlestracker_t.Intg_e_orient = 0.0;
