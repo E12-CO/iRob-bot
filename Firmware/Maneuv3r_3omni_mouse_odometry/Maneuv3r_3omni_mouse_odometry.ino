@@ -1,14 +1,37 @@
 #include <Wire.h>
 #include "stdodom.h"
 
+// Conversion Constant
+
 // Robot dimension
 #define OMNI_WHEEL_D  0.0727f // 72.7mm distance from robot center to wheel center
 #define OMNI_WHEEL_R  0.0190f // 19.0mm wheel radius
-#define OMNI_SINE_120 0.8660f // Sine(120 degree) in rad unit
 
-// Conversion Constant
-//#define RAD_S_TO_RPM 954.93 // rad/s to RPM with 1:100 gearbox scaling for commanding motor 
-#define RAD_S_TO_RPM 318.31 // rad/s to RPM with 1:30 gearbox scaling for commanding motor
+#define G1_48 // Select 1:48 gear ratio
+
+#if defined(G1_100)
+  #define RAD_S_TO_RPM 954.93f    // rad/s to RPM with 1:100 gearbox scaling for commanding motor 
+  #define GEAR_RATIO  0.01f       // 1/100 gearbox ratio
+#elif defined(G1_48)
+  #define RAD_S_TO_RPM 458.3664f  // rad/s to RPM with 1:48 gearbox scaling for commanding motor 
+  #define GEAR_RATIO  0.02083f    // 1/48 gearbox ratio
+#elif defined(G1_30)
+  #define RAD_S_TO_RPM 318.31f    // rad/s to RPM with 1:30 gearbox scaling for commanding motor
+  #define GEAR_RATIO    0.0333f   // 1/30 gearbox ratio
+#elif defined(G1_20)
+  #define RAD_S_TO_RPM  190.9859  // rad/s to RPM with 1:20 gearbox scaling for commanding motor
+  #define GEAR_RATIO  0.05f       // 1/20 gearbox ratio
+#elif defined(G1_10)
+  #define RAD_S_TO_RPM  95.493    // rad/s to RPM with 1:10 gearbox scaling for commanding motor
+  #define GEAR_RATIO 0.10f        // 1/10 gearbox ratio
+#else
+  #error "Please select Gear ratio!"
+#endif
+
+// Math constants
+#define RPM_TO_RAD_S  0.1047f // 1 rpm == 0.1047 rad/s 
+#define OMNI_SINE_120 0.8660f // Sine(120 degree) in rad unit
+#define F2_SQRT3      1.1547f // 2/sqrt(3)
 
 // Control system related
 #define LOOP_TIME         8 // Loop time is 8ms -> 125Hz
@@ -65,29 +88,31 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
   motor_omniInit(&omni_wheelvel);// Pass the pointer to Wheel velocity command
-
-  delay(50);
+  pinMode(2, OUTPUT);
+  pinMode(0, INPUT);
+  while(digitalRead(0));
+  digitalWrite(2, HIGH);
+  // Init encoder
+  encoder_Init();// Initialize ESP32 Encoder interrupt.
+  delay(200);
   sensor_Init();
-
+  digitalWrite(2, LOW);
+  
   /* Begin maneuv3r algorithm */
   maneuv3r_init(&omni_odom);
   maneuv3r_pidInit(
-    1.8, 0.005, 0.0,  // Walk kPID Kp 1.8 Ki 0.0 Kd 0.0
-    0.05, 0.5,     // Walk min and max velocity (m/s)
+    1.75, 0.0005, 0.0,  // Walk kPID Kp 1.65 Ki 0.0005 Kd 0.0
+    0.005, 0.25,     // Walk min and max velocity (m/s)
 
-    1.0, 0.0, 0.0,  // Heading kPID
+    0.86, 0.00085, 0.003,  // Twizzle rotate kPID Kp 0.6 Ki 0.006 Kd 0.003
 
-    1.8, 0.002, 0.0,  // Rotate kPID
+    1.4, 0.0005, 0.0,  // Rotate kPID
     0.001, 20.0      // Rotate min and max velocity (rad/s)
   );
 
   maneuv3r_update_Cmdvel(&omni_cmdvel, 0.0, 0.0, 0.0);
 
   /* End maneuv3r algorithm */
-
-  // Init encoder
-  encoder_Init();// Initialize ESP32 Encoder interrupt.
-  delay(10);
 }
 unsigned long runner_millis = 0;
 
@@ -141,8 +166,12 @@ inline void robot_runner() {
   switch (main_fsm) {
     case 0:
       {
-        //Serial.println("running robot");
         main_fsm = 1;
+//        Serial.print("Pos X:");
+//        Serial.print(omni_odom.pos_x);
+//        Serial.print(",Pos Y:");
+//        Serial.print(omni_odom.pos_y);
+//        Serial.println();
       }
       break;
 
@@ -173,7 +202,7 @@ inline void robot_runner() {
     case 4:
       {
         if (maneuv3r_twizzlesTracker(&omni_odom, &omni_cmdvel, 0.3, 1.570797, 3.141593)) {
-           main_fsm = 1;
+           main_fsm = 255;
         }
       }
       break;  
@@ -186,7 +215,10 @@ void loop() {
     runner_millis = micros();
     computeOdom();
     robot_runner();
+    //maneuv3r_update_Cmdvel(&omni_cmdvel, 1.0, 0.0, 0.0);
     cmd_vel(&omni_cmdvel);
+//    Serial.print("omni_odom->vel_x:");
+//    Serial.println(omni_odom.vel_x);
     //    Serial.print(",V1:");
     //    Serial.print(omni_wheelvel.v1);
     //    Serial.print(",V2:");
