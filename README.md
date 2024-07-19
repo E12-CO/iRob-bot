@@ -8,7 +8,7 @@ This robot is a part of R&D project at Robot club engineering KMITL (RB26).
 - Dimension : To be measured
 - Weight : To be measured
 - Drivetrain ```omnidirectional 3 wheels (omni-wheel)```
-- Motor ```N20 motor with 1:30* gearbox and 7PPR AB quadrature encoder```
+- Motor ```N20 motor with 1:48 gearbox and 7PPR AB quadrature encoder```
 - Drive ```DRV8835 on custom breakout board(sees Electronics folder)```
 - Main controller ```ESP32 WROOM32```
 - Odometry sensors
@@ -24,10 +24,9 @@ This robot is a part of R&D project at Robot club engineering KMITL (RB26).
     - PI speed control (No torque control)
     - PID position and orientation control
 
-*gearbox ration is yet to be confirmed.
 
 # Folders
-- Electrnics : Electronics design file (EAGLE cad format)
+- Electronics : Electronics design file (EAGLE cad format)
 - Firmware : Arduino firmware
 - Hardware : CAD design of the robot
 - Software : ROS2 node
