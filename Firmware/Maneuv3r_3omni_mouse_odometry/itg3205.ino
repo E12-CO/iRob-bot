@@ -55,11 +55,12 @@ float itg3205_getVz(){
 }
 float gyro_offset;
 void itg3205_calib(){
+  int32_t gyro_raw;
   for(uint16_t i=0; i < 2000; i++){
-      gyro_offset += itg3205_getVz();
+      gyro_raw += itg3205_getVz();
       delay(1);
   }  
-  gyro_offset /= 2000;
+  gyro_offset = (float)(gyro_raw/2000.0);
 }
 
 void itg3205_getPosZ(odometry_t *robot_odom){
