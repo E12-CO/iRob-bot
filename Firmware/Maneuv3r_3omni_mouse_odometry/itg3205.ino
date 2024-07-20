@@ -1,3 +1,4 @@
+// Gyro sensor
 #define SCL_PIN       22
 #define SDA_PIN       21
 #define I2C_SPEED     400000
@@ -51,7 +52,7 @@ float itg3205_getVz(){
   gz = itg3205_readReg8(REG_GYZ_H) << 8;
   gz |= itg3205_readReg8(REG_GYZ_H + 1);
 
-  return -(gz * ITG_TO_RAD);
+  return gz;
 }
 float gyro_offset;
 void itg3205_calib(){
@@ -64,7 +65,7 @@ void itg3205_calib(){
 }
 
 void itg3205_getPosZ(odometry_t *robot_odom){
-  robot_odom->vel_az = itg3205_getVz() - gyro_offset;
+  robot_odom->vel_az = (gyro_offset - itg3205_getVz()) * ITG_TO_RAD;// Gyro mounted upside-down, so the offset is subtracting the reading
   robot_odom->pos_az += robot_odom->vel_az * 0.008;
   robot_odom->pos_abs_az += robot_odom->vel_az * 0.008;
   if(robot_odom->pos_abs_az > 6.28319)
