@@ -1,13 +1,23 @@
 // TODO : use fixed-point math for speed and resource.
 
 #define DISTANCE_TOL 0.01f
-#define ROTATION_TOL 0.028f
+#define ROTATION_TOL 0.02f
 
 pidConst_t pid_walk_t;// PID constant for linear motion
 pidConst_t pid_twizzles_t;// PID constant for twizzles rotate control
 pidConst_t pid_rotate_t;// PID constant for angular motion
 
-void maneuv3r_init(odometry_t *robot_odom) {
+odometry_t *robot_odom;
+cmdvel_t *robot_cmd;
+
+void maneuv3r_init(
+  odometry_t *robot_odom_ptr,
+  cmdvel_t *robot_cmd_ptr
+  ){
+
+  robot_odom = robot_odom_ptr;
+  robot_cmd = robot_cmd_ptr;
+    
   robot_odom->pos_x = 0.0;
   robot_odom->pos_y = 0.0;
   robot_odom->pos_az = 0.0;
@@ -59,7 +69,7 @@ void maneuv3r_pidInit(
   pid_rotate_t.max_vang = max_rotate;
 }
 
-void maneuv3r_update_Cmdvel(cmdvel_t *robot_cmd, float vel, float heading, float az) {
+void maneuv3r_update_Cmdvel(float vel, float heading, float az) {
   // Convert the R and Theta (polar coordinates) into X and Y velocity component (Cartesian coordinates).
   robot_cmd->vlx_out = vel * cos(heading);
   robot_cmd->vly_out = vel * sin(heading);
@@ -99,16 +109,23 @@ maneuv3r_walktracker_t walktracker_t;
 // PID path tracking function that allows the robot to move in any xy floor plane direction by specifying :
 // dist : moving distance
 // heading : heading angle (moving direction)
-uint8_t maneuv3r_walkTracker(odometry_t *robot_odom, cmdvel_t *robot_cmd, float dist, float heading) {
+uint8_t maneuv3r_walkTracker(float dist, float heading) {
 
   switch (maneuv3r_walkTracker_FSM) {
     case 0:// Setup state
       {
-        // Calculate the destination position
-        // The heading angle from user input will only be used for calculatinh the initial condition.
+        // Clear previous calculations
+        walktracker_t.Intg_e_dist = 0.0;
+        walktracker_t.Intg_e_orient = 0.0;
+        
+        // Destination setpoint
+        // The heading angle from user input will only be used for calculating the initial condition.
         walktracker_t.dest_x = (dist * cos(heading)) + robot_odom->pos_x;
         walktracker_t.dest_y = (dist * sin(heading)) + robot_odom->pos_y;
+        // Setpoint for maintaining steady orientation
+        // This helps stabilize robot when moving along Y axis
         walktracker_t.initial_orient = robot_odom->pos_az;
+        
         maneuv3r_walkTracker_FSM = 1;
       }
       break;
@@ -191,22 +208,12 @@ uint8_t maneuv3r_walkTracker(odometry_t *robot_odom, cmdvel_t *robot_cmd, float 
 
         // Goal checker
         if (abs(walktracker_t.e_dist) < DISTANCE_TOL){ // meets the distance tolerance
-          maneuv3r_update_Cmdvel(robot_cmd, 0.0, 0.0, 0.0);
-          maneuv3r_walkTracker_FSM = 2;// Enter clean up exit state
-          return 0;
+          maneuv3r_update_Cmdvel(0.0, 0.0, 0.0);
+          maneuv3r_walkTracker_FSM = 0;// Exit
+          return 1;
         }
         
-        maneuv3r_update_Cmdvel(robot_cmd, walktracker_t.cmd_lvel, walktracker_t.cmd_heading, walktracker_t.cmd_avel);
-      }
-      break;
-
-    case 2:// Clean up and exit state
-      {
-        walktracker_t.Intg_e_dist = 0.0;
-        walktracker_t.Intg_e_orient = 0.0;
-        
-        maneuv3r_walkTracker_FSM = 0;
-        return 1;
+        maneuv3r_update_Cmdvel(walktracker_t.cmd_lvel, walktracker_t.cmd_heading, walktracker_t.cmd_avel);
       }
       break;
   }
@@ -226,11 +233,15 @@ typedef struct maneuv3r_rotatetracker_t {
 maneuv3r_rotatetracker_t rotatetracker_t;
 
 // Rotate by a specific angle (relative to previous orientation)
-uint8_t maneuv3r_rotateTracker(odometry_t *robot_odom, cmdvel_t *robot_cmd, float rotate) {
+uint8_t maneuv3r_rotateTracker(float rotate) {
 
   switch (maneuv3r_rotateTracker_FSM) {
     case 0:// Setup state
       {
+        // Clear previous calculation
+        rotatetracker_t.Intg_e_orient = 0.0;
+
+        // Orientation setpoint
         rotate += robot_odom->pos_az;// calculate real setpoint
         maneuv3r_rotateTracker_FSM = 1;
       }
@@ -265,22 +276,13 @@ uint8_t maneuv3r_rotateTracker(odometry_t *robot_odom, cmdvel_t *robot_cmd, floa
           rotatetracker_t.cmd_avel = 0.0;
   
         if (abs(rotatetracker_t.e_orient) < ROTATION_TOL) { // meets the orientation tolerance
-          maneuv3r_update_Cmdvel(robot_cmd, 0.0, 0.0, 0.0);
-          maneuv3r_rotateTracker_FSM = 2;
-          return 0;
+          maneuv3r_update_Cmdvel(0.0, 0.0, 0.0);
+          maneuv3r_rotateTracker_FSM = 0;
+          return 1;
           break;
         }
   
-        maneuv3r_update_Cmdvel(robot_cmd, 0.0, 0.0, rotatetracker_t.cmd_avel);
-      }
-      break;
-
-    case 2:// Clean up and exit state
-      {
-        rotatetracker_t.Intg_e_orient = 0.0;
-
-        maneuv3r_rotateTracker_FSM = 0;
-        return 1;
+        maneuv3r_update_Cmdvel(0.0, 0.0, rotatetracker_t.cmd_avel);
       }
       break;
   }
@@ -324,16 +326,20 @@ maneuv3r_twizzlestracker_t twizzlestracker_t;
 // dist : moving distance
 // heading : heading angle (moving direction)
 // rotate : orientation at the destination (relative to previous orientation)
-uint8_t maneuv3r_twizzlesTracker(odometry_t *robot_odom, cmdvel_t *robot_cmd, float dist, float heading, float rotate) {
+uint8_t maneuv3r_twizzlesTracker(float dist, float heading, float rotate) {
 
   switch (maneuv3r_twizzlesTracker_FSM) {
     case 0:// Setup state
       {
-        // Calculate the destination position
+        // Clear previous calculations
+        twizzlestracker_t.Intg_e_dist = 0.0;
+        twizzlestracker_t.Intg_e_orient = 0.0;
+        
+        // Destination setpoint
         twizzlestracker_t.dest_x = (dist * cos(heading)) + robot_odom->pos_x;
         twizzlestracker_t.dest_y = (dist * sin(heading)) + robot_odom->pos_y;
 
-        // Initial orientation
+        // Orientation setpoint
         twizzlestracker_t.initial_orient = rotate + robot_odom->pos_az;
         
         maneuv3r_twizzlesTracker_FSM = 1;
@@ -427,38 +433,14 @@ uint8_t maneuv3r_twizzlesTracker(odometry_t *robot_odom, cmdvel_t *robot_cmd, fl
 
         // Once all goals were satisfied, stop the robot
         if ((abs(twizzlestracker_t.e_orient) < ROTATION_TOL) && (abs(twizzlestracker_t.e_dist) < DISTANCE_TOL)) {
-          maneuv3r_twizzlesTracker_FSM = 2;
-          maneuv3r_update_Cmdvel(robot_cmd, 0.0, 0.0, 0.0);
-          return 0;
+          maneuv3r_update_Cmdvel(0.0, 0.0, 0.0);
+          maneuv3r_twizzlesTracker_FSM = 0;
+          return 1;
         }
         
-        maneuv3r_update_Cmdvel(robot_cmd, twizzlestracker_t.cmd_lvel, twizzlestracker_t.cmd_heading - robot_odom->pos_abs_az, twizzlestracker_t.cmd_avel);
+        maneuv3r_update_Cmdvel(twizzlestracker_t.cmd_lvel, twizzlestracker_t.cmd_heading - robot_odom->pos_abs_az, twizzlestracker_t.cmd_avel);
       }
       break;
-
-    // Inter-state delay
-
-    case 2:
-      maneuv3r_twizzlesTracker_FSM = 3;
-      break;
-
-    case 3:
-      maneuv3r_twizzlesTracker_FSM = 4;
-      break;
-
-    case 4:
-      maneuv3r_twizzlesTracker_FSM = 5;
-      break;
-
-    case 5:// Clean up and exit state
-    {
-      twizzlestracker_t.Intg_e_dist = 0.0;
-      twizzlestracker_t.Intg_e_orient = 0.0;
-    
-      maneuv3r_twizzlesTracker_FSM = 0;
-      return 1;
-    }
-    break;
   }
 
   return 0;
