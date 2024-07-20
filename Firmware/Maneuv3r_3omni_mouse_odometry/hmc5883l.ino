@@ -1,3 +1,4 @@
+// mag sensor
 #define SCL_PIN       22
 #define SDA_PIN       21
 #define I2C_SPEED     400000
