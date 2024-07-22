@@ -5,7 +5,7 @@
 #define REG_DELTAY  0x04 // Delta Y movement
 #define REG_SQUAL   0x05 // Surface quality
 #define REG_GETPIX  0x0B // Get Raw pixel reading
-#define REG_MCTRL2  0x10 // Mouse control 2 (setting DPI)
+#define REG_MCTRL2  0x19 // Mouse control 2 (setting DPI)
 #define REG_RDBRST  0x63 // Motion Burst, Read Delta X and Y in single command
 #define REG_LEDCTR  0x22 // LED control (strobe mode or always on)
 
@@ -100,7 +100,6 @@ void adns5050_setLED() {
 
 // Set Count Per Inch to 1375 Count per Inch
 void adns5050_setcpi(){
-  adns5050_writeReg(REG_MCTRL2, 0x10);// First, enable the RES register
   adns5050_writeReg(REG_MCTRL2, 0x1B);// Select 1375CPI
 }
 
@@ -149,13 +148,25 @@ void adns5050_getdXdY(int8_t *dX, int8_t *dY) {
 }
 
 int8_t dx, dy;
-void adns5050_updateVel(odometry_t *robot_odom){
+int32_t acmu_x, acmu_y;
+int32_t scaled_x, scaled_y;
+float px, py;
+void adns5050_updateVel(odometry_t *flow_odom){
     adns5050_getdXdY(&dx, &dy);
+    // Original calibration at 500 CPI
+    // (0.70 measured meter / 40 odom meter) * 0.005882 -> 0.010293
+    // Original calibration at 1735 CPI
+    // (0.32 m/s / 96 count) -> 0.003333
+    temp_x = (float)dx;
+    flow_odom->vel_x = (float)(dx * 0.003333);
+    flow_odom->vel_y = (float)(dy * 0.003333);
 
-    // At 1375 CPI, still need calibration tho, as I will use different optics assembly.
-    //vx = (vx/1375) * 125 * 0.0254;// CPI->Inch->InchPerSec->MeterPerSec
-    //vy = (vy/1375) * 125 * 0.0254;// CPI->Inch->InchPerSec->MeterPerSec
-    
-    robot_odom->vel_x = dx * 0.003175;
-    robot_odom->vel_y = dy * 0.003175;
+    // Calibration guide
+    // 1. Focus the lens until getting the best surface quality reading (Good ligthing such as LED is needed).
+    // 2. move robot in known velocity in x and y direction then record the average reading of dx and dy.
+    // 3. Divide the known velocity (in m/s unit) with the count. The result will be the coefficient constant.
+    // 4. multiply each X and Y coeff to dx and dy.
+    // 5. Walk test with something like 2 or 5 or even 10 meters. Then measure the actual travel distance in X and Y axis
+    // 6. Calculate the scaling factor to account for any scaling effect
+    // 7. Any other scaling/correction method would be great. I just have no any other good idea on this.
 }
