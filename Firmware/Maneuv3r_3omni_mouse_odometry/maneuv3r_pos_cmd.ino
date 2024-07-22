@@ -1,7 +1,7 @@
 // TODO : use fixed-point math for speed and resource.
 
-#define DISTANCE_TOL 0.01f
-#define ROTATION_TOL 0.02f
+#define DISTANCE_TOL 0.008f
+#define ROTATION_TOL 0.035f
 
 pidConst_t pid_walk_t;// PID constant for linear motion
 pidConst_t pid_twizzles_t;// PID constant for twizzles rotate control
@@ -369,8 +369,8 @@ uint8_t maneuv3r_twizzlesTracker(float dist, float heading, float rotate) {
            twizzlestracker_t.cmd_avel = 
               constrain(
                 twizzlestracker_t.cmd_avel,
-                -pid_rotate_t.max_vang,
-                pid_rotate_t.max_vang
+                -1.8, // 2.0 rad/s
+                1.8
               );
         // Dead band
         if((twizzlestracker_t.cmd_avel < pid_rotate_t.min_vang) && (twizzlestracker_t.cmd_avel > -pid_rotate_t.min_vang))

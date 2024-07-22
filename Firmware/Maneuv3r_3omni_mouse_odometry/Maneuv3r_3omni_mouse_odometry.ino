@@ -42,10 +42,19 @@
 #define ADNS5050_SPI_SCK  18
 #define ADNS5050_NRST     23
 
+// Global Typedef
 // Robot odometry and cmd_vel
 odometry_t omni_odom;// Robot odometry frame data
+odometry_t optical_odom;// Optical odometry (only X and Y vel)
+odometry_t wheel_odom;// Wheel odometry (Only X and Y vel)
+
 cmdvel_t omni_cmdvel;// Robot base-link frame velocity command
 wheelvel_t omni_wheelvel;// Per-wheel velocity command
+
+// Global variable
+unsigned long runner_millis = 0;
+unsigned long qcheck_millis = 0;
+uint8_t main_fsm = 0;
 
 float atan2pi(float y, float x) {
   float at = atan2(y, x);
@@ -67,7 +76,7 @@ void sensor_Init() {
     Serial.println("ADNS 5050 probing error!");
     while (1);
   }
-  // Set CPI to 625 cpi
+  // Set CPI 
   adns5050_setcpi();
   // turn LED on
   adns5050_setLED();
@@ -88,8 +97,16 @@ void sensor_Init() {
 
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(115200);
   motor_omniInit(&omni_wheelvel);// Pass the pointer to Wheel velocity command
+  Serial.begin(115200);
+
+  // Initialize fuser
+  fuser_Init(
+    &omni_odom,// Robot's odometry
+    0.625,       // Weight of the wheel odom (vel_x)
+    0.625        // Weight of the wheel odom (vel_y)
+  );
+  
   pinMode(2, OUTPUT);
   pinMode(0, INPUT);
   while(digitalRead(0));
@@ -106,26 +123,30 @@ void setup() {
     &omni_cmdvel // Robot's system-wide cmd_vel
     );
   maneuv3r_pidInit(
-    1.8, 0.0005, 0.0,  // Walk kPID Kp 1.8 Ki 0.0005 Kd 0.0
-    0.005, 0.25,     // Walk min and max velocity (m/s)
+    1.8, 0.0005, 0.0,   // Walk kPID Kp 1.8 Ki 0.0005 Kd 0.0
+    0.005, 0.25,        // Walk min and max velocity (m/s)
 
-    0.86, 0.00095, 0.003,  // Twizzle rotate kPID Kp 0.86 Ki 0.00085 Kd 0.003
+    1.1, 0.0005, 0.0,  // Twizzle rotate kPID Kp 0.86 Ki 0.00085 Kd 0.003
 
-    1.4, 0.0005, 0.0,  // Rotate kPID
-    0.001, 20.0      // Rotate min and max velocity (rad/s)
+    1.4, 0.0015, 0.0,  // Rotate kPID
+    0.001, 2.094395    // Rotate min and max velocity (2.094395 rad/s or 120 deg/s)
   );
 
   maneuv3r_update_Cmdvel(0.0, 0.0, 0.0);
   /* End maneuv3r algorithm */
 }
-unsigned long runner_millis = 0;
 
 inline void computeOdom() {
   encoder_doVel();// Estimate Wheel RPM
-  //hmc5883l_getPosZ(&omni_odom);// Update robot orientation (az) referenced to north, also update angular velocity.
-  itg3205_getPosZ(&omni_odom);
-  adns5050_updateVel(&omni_odom);// Update Robot velocity (vx, vy) read by mouse sensor.
-  odometry_wheelOdom(&omni_odom);
+  
+  //hmc5883l_getPosZ(&omni_odom);   // Update robot orientation (az) referenced to north, also update angular velocity.
+  itg3205_getPosZ(&omni_odom);      // Integrate the angular velocity to estimate orientation
+  
+  adns5050_updateVel(&optical_odom);// Get X and Y velocity from mouse sensor
+  odometry_wheelOdom(&wheel_odom);  // Get X and Y velocity from wheel encoders
+  fuser_processOdom(&optical_odom, &wheel_odom); // Fuse Optical flow odom with Wheel odom.
+
+  
   odometry_posUpdate(&omni_odom);// Update robot X, Y position by integrating vx and vy.
 }
 
@@ -162,8 +183,10 @@ inline void cmd_vel(cmdvel_t *command_vel) {
   motor_pidUpdate();// Do motor PID algorithm
 }
 
-uint8_t main_fsm = 0;
-inline void robot_runner() {
+float stamp_x, stamp_y, stamp_x_wheel;
+float temp_x;
+uint8_t surfaceQval;
+void robot_runner() {
 
   switch (main_fsm) {
     case 0:
@@ -174,15 +197,15 @@ inline void robot_runner() {
 
     case 1:
       {
-        if (maneuv3r_twizzlesTracker(0.3, 0.0, 3.141593)) {
-           main_fsm = 2;
+        if (maneuv3r_twizzlesTracker(3.2, 0.0, 3.141593*2)) {
+           main_fsm = 255;
         }
       }
       break;
 
     case 2:
       {
-        if (maneuv3r_twizzlesTracker(0.3, 4.712391, -3.141593)) {
+        if (maneuv3r_twizzlesTracker(0.4, -1.570797, -3.141593)) {
            main_fsm = 3;
         }
       }
@@ -190,7 +213,7 @@ inline void robot_runner() {
 
     case 3:
       {
-        if (maneuv3r_twizzlesTracker(0.3, 3.141593, 3.141593)) {
+        if (maneuv3r_twizzlesTracker(0.4, -3.141593, 3.141593)) {
            main_fsm = 4;
         }
       }
@@ -198,25 +221,33 @@ inline void robot_runner() {
 
     case 4:
       {
-        if (maneuv3r_twizzlesTracker(0.3, 1.570797, 3.141593)) {
-            main_fsm = 1;
+        if (maneuv3r_twizzlesTracker(0.4, 1.570797, -3.141593)) {
+            main_fsm = 255;
         }
       }
       break;  
+
+    case 255:
+      {
+        Serial.print("Optical:");
+        Serial.println(stamp_x);
+        Serial.print("Encoder:");
+        Serial.println(stamp_x_wheel);
+      }
+      break;
   }
 
 }
-
 void loop() {
   if ((micros() - runner_millis) > LOOP_TIME * 1000) {
     runner_millis = micros();
     computeOdom();
     robot_runner();
     cmd_vel(&omni_cmdvel);
-    //    Serial.print("Pos X:");
-    //    Serial.print(omni_odom.pos_x);
-    //    Serial.print(",Pos Y:");
-    //    Serial.print(omni_odom.pos_y);
+//    Serial.print("Vx :");
+//    Serial.print(omni_odom.vel_x);
+//    Serial.print(",Vy :");
+//    Serial.print(omni_odom.vel_y);
     //    Serial.println();
     //    Serial.print(",V1:");
     //    Serial.print(omni_wheelvel.v1);
@@ -230,7 +261,7 @@ void loop() {
     //    Serial.print(encoder_getM2());
     //    Serial.print(",M3:");
     //    Serial.print(encoder_getM3());
-    //    Serial.println();
+            Serial.println();
   }
   //  hls_poll();// Will move to other core (plus network)
 }

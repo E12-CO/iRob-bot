@@ -20,6 +20,7 @@ void odometry_posUpdate(odometry_t *robot_odom) {
   robot_odom->pos_heading = atan2pi(robot_odom->vel_y, robot_odom->vel_x);
 }
 
+// TODO : Fuse wheel odometry with the optical flow sensor.
 // robot configuration :
 //                    +x
 //        v1           ^
@@ -27,12 +28,12 @@ void odometry_posUpdate(odometry_t *robot_odom) {
 //      /    \  +y <---o
 //    v3 ---- v2
 // Forward kinematic below :
-void odometry_wheelOdom(odometry_t *robot_odom){
+void odometry_wheelOdom(odometry_t *wheel_odom){
   float v1, v2, v3;
-  v1 = encoder_getM1() * RPM_TO_RAD_S *GEAR_RATIO;
-  v2 = encoder_getM2() * RPM_TO_RAD_S *GEAR_RATIO;
-  v3 = encoder_getM3() * RPM_TO_RAD_S *GEAR_RATIO;
+  v1 = encoder_getM1() * RPM_TO_RAD_S * GEAR_RATIO;
+  v2 = encoder_getM2() * RPM_TO_RAD_S * GEAR_RATIO;
+  v3 = encoder_getM3() * RPM_TO_RAD_S * GEAR_RATIO;
 
-  robot_odom->vel_x = (v2-v3) * OMNI_SINE_120 * OMNI_WHEEL_R;
-  robot_odom->vel_y = (v1 - ((v2+v3) * 0.5)) * OMNI_WHEEL_R;
+  wheel_odom->vel_x = (v2-v3) * OMNI_SINE_120 * OMNI_WHEEL_R;
+  wheel_odom->vel_y = (v1 - ((v2+v3) * 0.5)) * OMNI_WHEEL_R;
 }
