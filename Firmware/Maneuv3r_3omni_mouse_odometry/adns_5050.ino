@@ -148,16 +148,12 @@ void adns5050_getdXdY(int8_t *dX, int8_t *dY) {
 }
 
 int8_t dx, dy;
-int32_t acmu_x, acmu_y;
-int32_t scaled_x, scaled_y;
-float px, py;
 void adns5050_updateVel(odometry_t *flow_odom){
     adns5050_getdXdY(&dx, &dy);
     // Original calibration at 500 CPI
     // (0.70 measured meter / 40 odom meter) * 0.005882 -> 0.010293
     // Original calibration at 1735 CPI
     // (0.32 m/s / 96 count) -> 0.003333
-    temp_x = (float)dx;
     flow_odom->vel_x = (float)(dx * 0.003333);
     flow_odom->vel_y = (float)(dy * 0.003333);
 
