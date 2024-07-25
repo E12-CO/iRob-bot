@@ -30,7 +30,7 @@
 
 // Math constants
 #define RPM_TO_RAD_S  0.1047f // 1 rpm == 0.1047 rad/s 
-#define OMNI_SINE_120 0.8660f // Sine(120 degree) in rad unit
+#define OMNI_SINE_120 0.866025f // Sine(120 degree) in rad unit
 #define F2_SQRT3      1.1547f // 2/sqrt(3)
 
 // Control system related
@@ -102,9 +102,10 @@ void setup() {
 
   // Initialize fuser
   fuser_Init(
-    &omni_odom,// Robot's odometry
-    0.625,       // Weight of the wheel odom (vel_x)
-    0.625        // Weight of the wheel odom (vel_y)
+    &omni_odom,   // Robot's odometry
+    0.625,        // Filter weight of the wheel odom (vel_x)
+    0.625,        // Filter weight of the wheel odom (vel_y)
+    1.0          // Filter weight of the gyro angular velocity (vel_az)
   );
   
   pinMode(2, OUTPUT);
@@ -124,12 +125,12 @@ void setup() {
     );
   maneuv3r_pidInit(
     1.8, 0.0005, 0.0,   // Walk kPID Kp 1.8 Ki 0.0005 Kd 0.0
-    0.005, 0.25,        // Walk min and max velocity (m/s)
+    0.005, 0.28,        // Walk min and max velocity (m/s)
 
-    1.1, 0.0005, 0.0,  // Twizzle rotate kPID Kp 0.86 Ki 0.00085 Kd 0.003
+    1.0, 0.0009, 0.000,  // Twizzle rotate kPID Kp 0.86 Ki 0.00085 Kd 0.003
 
     1.4, 0.0015, 0.0,  // Rotate kPID
-    0.001, 2.094395    // Rotate min and max velocity (2.094395 rad/s or 120 deg/s)
+    0.001, 3.5    // Rotate min and max velocity (4.0 rad/s)
   );
 
   maneuv3r_update_Cmdvel(0.0, 0.0, 0.0);
@@ -137,16 +138,17 @@ void setup() {
 }
 
 inline void computeOdom() {
-  encoder_doVel();// Estimate Wheel RPM
+  encoder_doVel();// Estimate Wheel RPM.
+
+  // Re-using the optical and wheel odometry struct.
+  itg3205_getPosZ(&optical_odom);       // Integrate the angular velocity to estimate orientation.
+  //hmc5883l_getPosZ(&wheel_odom);        // Update robot orientation (az) referenced to north, also update angular velocity.
+  fuser_processYaw(&optical_odom, &wheel_odom);// Fuse Gyro angular vel with Mag angular vel.
   
-  //hmc5883l_getPosZ(&omni_odom);   // Update robot orientation (az) referenced to north, also update angular velocity.
-  itg3205_getPosZ(&omni_odom);      // Integrate the angular velocity to estimate orientation
-  
-  adns5050_updateVel(&optical_odom);// Get X and Y velocity from mouse sensor
-  odometry_wheelOdom(&wheel_odom);  // Get X and Y velocity from wheel encoders
+  adns5050_updateVel(&optical_odom);// Get X and Y velocity from mouse sensor.
+  odometry_wheelOdom(&wheel_odom);  // Get X and Y velocity from wheel encoders.
   fuser_processOdom(&optical_odom, &wheel_odom); // Fuse Optical flow odom with Wheel odom.
 
-  
   odometry_posUpdate(&omni_odom);// Update robot X, Y position by integrating vx and vy.
 }
 
@@ -182,30 +184,28 @@ inline void cmd_vel(cmdvel_t *command_vel) {
 
   motor_pidUpdate();// Do motor PID algorithm
 }
-
-float stamp_x, stamp_y, stamp_x_wheel;
-float temp_x;
-uint8_t surfaceQval;
+uint8_t play_cnt = 0;
 void robot_runner() {
 
   switch (main_fsm) {
     case 0:
       {
-        main_fsm = 1;
+//        if(maneuv3r_rotateTracker(3.141593))
+          main_fsm = 1;
       }
       break;
 
     case 1:
       {
-        if (maneuv3r_twizzlesTracker(3.2, 0.0, 3.141593*2)) {
-           main_fsm = 255;
+        if (maneuv3r_twizzlesTracker(0.8, 0.0, 3.141593)) {
+           main_fsm = 2;
         }
       }
       break;
 
     case 2:
       {
-        if (maneuv3r_twizzlesTracker(0.4, -1.570797, -3.141593)) {
+        if (maneuv3r_twizzlesTracker(0.8, -1.570797, -3.141593)) {
            main_fsm = 3;
         }
       }
@@ -213,7 +213,7 @@ void robot_runner() {
 
     case 3:
       {
-        if (maneuv3r_twizzlesTracker(0.4, -3.141593, 3.141593)) {
+        if (maneuv3r_twizzlesTracker(0.8, -3.141593, 3.141593)) {
            main_fsm = 4;
         }
       }
@@ -221,18 +221,19 @@ void robot_runner() {
 
     case 4:
       {
-        if (maneuv3r_twizzlesTracker(0.4, 1.570797, -3.141593)) {
-            main_fsm = 255;
+        if (maneuv3r_twizzlesTracker(0.8, 1.570797, -3.141593)) {
+            play_cnt++;
+            if(play_cnt == 4)
+              main_fsm = 255;
+            else
+              main_fsm = 1;
         }
       }
       break;  
 
     case 255:
       {
-        Serial.print("Optical:");
-        Serial.println(stamp_x);
-        Serial.print("Encoder:");
-        Serial.println(stamp_x_wheel);
+
       }
       break;
   }
@@ -261,7 +262,7 @@ void loop() {
     //    Serial.print(encoder_getM2());
     //    Serial.print(",M3:");
     //    Serial.print(encoder_getM3());
-            Serial.println();
+    //        Serial.println();
   }
   //  hls_poll();// Will move to other core (plus network)
 }

@@ -30,10 +30,10 @@ void hmc5883l_init(){
 }
 
 int16_t mx, my;
-int16_t pz;
-uint8_t firstRead_flag;
-float init_pos_az;
-void hmc5883l_getPosZ(odometry_t *robot_odom){
+
+float current_pos_pz;
+
+void hmc5883l_getPosZ(odometry_t *robot_odomptr){
     mx = hmc5883l_readReg8(MAG_XH) << 8;
     mx |= hmc5883l_readReg8(MAG_XH+1);
     my = hmc5883l_readReg8(MAG_YH) << 8;
@@ -42,20 +42,9 @@ void hmc5883l_getPosZ(odometry_t *robot_odom){
     hmc5883l_readReg8(MAG_ZH);
     hmc5883l_readReg8(MAG_ZH+1);  
 
-    pz = (atan2f((float)my, (float)mx)) * 100;// Unit Rad
-
-    robot_odom->pos_az = (pz % 628) * 0.01;
-
-    // Get the Initial orientation
-    if(firstRead_flag == 0){
-      init_pos_az = robot_odom->pos_az;
-      firstRead_flag = 1;
-    }
-
-    // Update relative to north orientation (rad)
-    // robot_odom->pos_az = robot_odom->pos_az - init_pos_az;
+    current_pos_pz = atan2pi((float)my, (float)mx);// Unit Rad
 
     // Estimate angular velocity (rad/s)
-    robot_odom->vel_az = (robot_odom->pos_az - robot_odom->prev_pos_az) * 125;
-    robot_odom->prev_pos_az = robot_odom->pos_az;
+    robot_odomptr->vel_az = (current_pos_pz - robot_odomptr->prev_pos_az) * 125;
+    robot_odomptr->prev_pos_az = current_pos_pz;
 }
