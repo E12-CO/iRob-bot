@@ -15,7 +15,7 @@ wheelvel_t *local_wheelvel_t;// Internal pointer used to access the Per-wheel ve
 
 // TODO : Retune to get better input response.
 motor_var_t omni_m1_t = {
-  .motor_Kp = 4.1,// Motor 1 Kp
+  .motor_Kp = 4.0,// Motor 1 Kp
   .motor_Ki = 0.14,// Motor 1 Ki
 
   .curr_speed = 0.0,
