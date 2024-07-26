@@ -18,6 +18,8 @@ typedef struct pin_t{
 
 pin_t adns_Pin_t;
 
+uint8_t squal = 0;
+
 void adns5050_init(int ncs, int sio, int sck, int nrst) {
   // Setup GPIO
   adns_Pin_t.ncs = ncs;
@@ -104,7 +106,7 @@ void adns5050_setcpi(){
 }
 
 uint8_t adns5050_getSurfaceQ(){
-  return adns5050_readReg(REG_SQUAL);
+  return squal;
 }
 
 // Read the travel distance of X and Y axis
@@ -143,6 +145,14 @@ void adns5050_getdXdY(int8_t *dX, int8_t *dY) {
     reg = reg << 1;
   }
   *dY = (int8_t)reg;
+
+  for (uint8_t i = 0; i < 8; i++) {
+    digitalWrite(adns_Pin_t.sck, LOW);
+    reg |= digitalRead(adns_Pin_t.sio);
+    digitalWrite(adns_Pin_t.sck, HIGH);
+    reg = reg << 1;
+  }
+  squal = reg;
   
   digitalWrite(adns_Pin_t.ncs, HIGH);
 }
@@ -152,7 +162,7 @@ void adns5050_updateVel(odometry_t *flow_odom){
     adns5050_getdXdY(&dx, &dy);
     // Original calibration at 500 CPI
     // (0.70 measured meter / 40 odom meter) * 0.005882 -> 0.010293
-    // Original calibration at 1735 CPI
+    // Original calibration at 1375 CPI
     // (0.32 m/s / 96 count) -> 0.003333
     flow_odom->vel_x = (float)(dx * 0.003333);
     flow_odom->vel_y = (float)(dy * 0.003333);
