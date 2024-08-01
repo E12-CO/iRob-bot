@@ -52,8 +52,8 @@ This is a good oppurtunity for me to revisit what I've seen back in 2023. I fina
     - PI speed control (No torque control)
     - PID position and orientation control
 - ESP32 Dual core
-    - Core 0 is responsible for Networking task and LiDAR reading (Work in progress)
-    - Core 1 is working on Low-level control system
+    - Core 0 is working on Low-level control system
+    - Core 1 is responsible for Networking task (BR/EDR or WiFi) and LiDAR reading (Work in progress)
 
 # Folders
 - Documents : Schematic and diagram PDFs and more soon.
