@@ -39,6 +39,8 @@ void fuser_processYaw(odometry_t *gyro_odom, odometry_t *mag_odom){
   target_odom->pos_abs_az += target_odom->vel_az * 0.008;
   if(target_odom->pos_abs_az > 6.28319)
     target_odom->pos_abs_az -= 6.28319;
+  if(target_odom->pos_abs_az < 0.0)
+    target_odom->pos_abs_az += 6.28319; 
 }
 
 void fuser_processOdom(odometry_t *optical_odom, odometry_t *wheel_odom){
