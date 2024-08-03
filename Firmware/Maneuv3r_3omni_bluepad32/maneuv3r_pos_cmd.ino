@@ -447,59 +447,69 @@ uint8_t maneuv3r_twizzlesTracker(float dist, float heading, float rotate) {
   return 0;
 }
 
-float next_vel;
-float out_vel;
 
-float pos_az_cmd;
-float e_rotate;
-float intg_rotate;
-float next_vaz;
 
-uint8_t cmd_lock = 0;
+typedef struct maneuv3r_joyttracker_t{
+  // Velocity smoother (LPF)
+  float next_vel;
+  float out_vel;
+  
+  float pos_az_cmd;
+  float e_rotate;
+  float intg_rotate;
+  float next_vaz;
+  
+  uint8_t cmd_lock;
+};
 
-void maneuv3r_joyTracker(float vel, float heading, float rotate, uint16_t rotate_cmd){
+maneuv3r_joyttracker_t joytracker_t;
+
+void maneuv3r_joyTracker(float vel, float heading, float rotate, uint16_t joy_cmd){
 
   // Gas paddle (R2)
-  if(rotate_cmd & 0x8000){
+  if(joy_cmd & 0x8000){
     vel *= 1.5;  
-    rotate *= 1.5;
+    rotate *= 2.5;
   }
-  
-  next_vel += vel;// Velocity smoother
-  next_vel -= out_vel;
-  out_vel = next_vel * 0.125;
 
-  pos_az_cmd += rotate * 0.008;// Integrate cmd_vel to position for position control.
+  // Velocity smoother
+  joytracker_t.next_vel += vel;
+  joytracker_t.next_vel -= joytracker_t.out_vel;
+  joytracker_t.out_vel = joytracker_t.next_vel * 0.125;
+
+  // Integrate cmd_vel to position for position control.
+  joytracker_t.pos_az_cmd += rotate * 0.008;
   
-  if((cmd_lock == 0) && (rotate_cmd & 0xFFFF)){
-    switch(rotate_cmd){
+  if((joytracker_t.cmd_lock == 0) && (joy_cmd & 0xFFFF)){
+    switch(joy_cmd){
       case 0x0080:// Set new north (Y)
       {
-        pos_az_cmd = 0.0;
+        joytracker_t.pos_az_cmd = 0.0;
         robot_odom->pos_abs_az = 0.0;
         robot_odom->pos_az = 0.0; 
+        joytracker_t.intg_rotate = 0.0;
       }
       break;
 
       case 0x0010:// Rotate to north (A)
       {
        if(robot_odom->pos_abs_az < 3.141593)
-        pos_az_cmd -= robot_odom->pos_abs_az;
+        joytracker_t.pos_az_cmd -= robot_odom->pos_abs_az;
        else
-        pos_az_cmd += 6.28319 - robot_odom->pos_abs_az;
+        joytracker_t.pos_az_cmd += 6.28319 - robot_odom->pos_abs_az;
         
       }
       break;
 
       case 0x0200:// rotate cw (relative to bot) (R1)
       {
-        pos_az_cmd -= 1.570796;
+        joytracker_t.pos_az_cmd -= 1.570796;
       }
       break;
 
       case 0x0100:// rotate ccw (relative to bot) (L1)
       {
-        pos_az_cmd += 1.570796;
+        joytracker_t.pos_az_cmd += 1.570796;
       }
       break;
 
@@ -507,17 +517,25 @@ void maneuv3r_joyTracker(float vel, float heading, float rotate, uint16_t rotate
         break;
     }
         
-    cmd_lock = 1;
-  }else if((cmd_lock == 1) && !(rotate_cmd & 0xFFFF))
-    cmd_lock = 0;
+    joytracker_t.cmd_lock = 1;
+  }else if((joytracker_t.cmd_lock == 1) && !(joy_cmd & 0xFFFF))
+    joytracker_t.cmd_lock = 0;
 
+  /*============================== BEGIN ORIENTATION ================================*/
+  joytracker_t.e_rotate = (joytracker_t.pos_az_cmd - robot_odom->pos_az);
+  joytracker_t.intg_rotate += joytracker_t.e_rotate * 0.001;
 
-  e_rotate = (pos_az_cmd - robot_odom->pos_az);
-  //intg_rotate += e_rotate * 0.005;
+  // Reset integral term when meets this goal threshold.
+  if(joytracker_t.e_rotate < 0.005)
+    joytracker_t.intg_rotate = 0.0;
 
-  next_vaz = 
-     (e_rotate * 5.0) +
-      intg_rotate;
+  joytracker_t.next_vaz = 
+     (joytracker_t.e_rotate * 5.0) +
+      joytracker_t.intg_rotate;
+  /*============================== END ORIENTATION ================================*/
   
-  maneuv3r_update_Cmdvel(out_vel, heading - robot_odom->pos_abs_az, next_vaz);  
+  maneuv3r_update_Cmdvel(
+    joytracker_t.out_vel, 
+    heading - robot_odom->pos_abs_az, 
+    joytracker_t.next_vaz);  
 }
