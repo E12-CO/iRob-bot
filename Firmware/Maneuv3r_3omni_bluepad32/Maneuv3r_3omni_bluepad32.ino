@@ -58,6 +58,7 @@ cmdvel_t omni_cmdvel;// Robot base-link frame velocity command
 headvel_t joy_headvel;
 wheelvel_t omni_wheelvel;// Per-wheel velocity command
 
+// FreeRTOS core 0 task
 TaskHandle_t Core0_t;
 
 // Global variable
@@ -96,7 +97,7 @@ void sensor_Init() {
   Wire.begin();
 
   // Init magnetometer
-  //hmc5883l_init();
+  hmc5883l_init();
 
   // Init Gyro
   itg3205_init();
@@ -122,9 +123,9 @@ void omni_init(){
   // Initialize fuser
   fuser_Init(
     &omni_odom,   // Robot's odometry
-    0.625,        // Filter weight of the wheel odom (vel_x) 0.625
-    0.625,        // Filter weight of the wheel odom (vel_y) 0.625
-    1.0          // Filter weight of the gyro angular velocity (vel_az)
+    0.0,        // Filter weight of the wheel odom (vel_x) 0.625
+    0.0,        // Filter weight of the wheel odom (vel_y) 0.625
+    0.9999          // Filter weight of the gyro angular velocity (vel_az)
   );
   
   /* Begin maneuv3r algorithm */
@@ -133,7 +134,7 @@ void omni_init(){
     &omni_cmdvel // Robot's system-wide cmd_vel
     );
   maneuv3r_pidInit(
-    1.2, 0.0005, 0.0,   // Walk kPID Kp 1.8 Ki 0.0005 Kd 0.0
+    2.5, 0.0005, 0.005,   // Walk kPID Kp 1.8 Ki 0.0005 Kd 0.0
     0.005, 0.26,        // Walk min and max velocity (m/s)
 
     0.0, 0.3, 0.0045,  // Twizzle rotate kPID Kp 0.86 Ki 0.00085 Kd 0.003
@@ -172,7 +173,7 @@ inline void computeOdom() {
 
   // Re-using the optical and wheel odometry struct.
   itg3205_getPosZ(&optical_odom);       // Integrate the angular velocity to estimate orientation.
-  //hmc5883l_getPosZ(&wheel_odom);        // Update robot orientation (az) referenced to north, also update angular velocity.
+  hmc5883l_getPosZ(&wheel_odom);        // Update robot orientation (az) referenced to north, also update angular velocity.
   fuser_processYaw(&optical_odom, &wheel_odom);// Fuse Gyro angular vel with Mag angular vel.
   
   adns5050_updateVel(&optical_odom);// Get X and Y velocity from mouse sensor.
@@ -240,8 +241,6 @@ void loop() {
       if(abs(joy_headvel.vel) < 0.01)
         joy_headvel.heading = 0.0;
       maneuv3r_joyTracker(joy_headvel.vel, joy_headvel.heading, joy_headvel.vaz, joycmd);
-      
-        
       cmd_vel(&omni_cmdvel);
     }
 }
@@ -250,10 +249,10 @@ void loop0(void *pvParameters){
   bluepad32_Init();
   
   while(1){
-     if((millis() - bluepad32_millis) > 100){
-       bluepad32_millis = millis();
-       joycmd = bluepad32_processControllers(&joy_headvel);
-      }
+   if((millis() - bluepad32_millis) > 100){
+     bluepad32_millis = millis();
+     joycmd = bluepad32_processControllers(&joy_headvel);
+    }
   
 //  if((millis() - debugprint_millis) > 100){
 //      debugprint_millis = millis();

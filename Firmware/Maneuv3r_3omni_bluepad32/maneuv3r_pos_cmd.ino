@@ -450,16 +450,36 @@ uint8_t maneuv3r_twizzlesTracker(float dist, float heading, float rotate) {
 
 
 typedef struct maneuv3r_joyttracker_t{
-  // Velocity smoother (LPF)
   float next_vel;
   float out_vel;
   
   float pos_az_cmd;
-  float e_rotate;
-  float intg_rotate;
-  float next_vaz;
   
   uint8_t cmd_lock;
+
+  /*=============== Translation =====================*/
+  // Calculate the X and Y distance from current position to the destination
+  float dest_x;
+  float dest_y;
+
+  float cmd_lvel;
+
+  // Calculate the difference between current position and destination.
+  float diff_x;
+  float diff_y;
+  float e_dist;// Distance error (SV - PV)
+  float Intg_e_dist;// Integral accumulator of the e_dist
+  float Diff_e_dist;// Differentiator output
+  float prev_e_dist;// z-1 of the e_dist
+
+  /*================ velocity heading =============*/
+  float cmd_heading;
+
+  /*================ Rotation ====================*/
+  float cmd_avel;
+  float e_orient;// Orientation error (SV - PV)
+
+  float Intg_e_orient;// Integral accumulator of the e_orient
 };
 
 maneuv3r_joyttracker_t joytracker_t;
@@ -477,17 +497,26 @@ void maneuv3r_joyTracker(float vel, float heading, float rotate, uint16_t joy_cm
   joytracker_t.next_vel -= joytracker_t.out_vel;
   joytracker_t.out_vel = joytracker_t.next_vel * 0.125;
 
+  // Velocity Dead band
+  if((joytracker_t.out_vel > -0.005) && 
+    (joytracker_t.out_vel < 0.005))
+    joytracker_t.out_vel = 0.0;
+  
+  // Calculate position setpoint form Joy stick vel command integration
+  joytracker_t.dest_x += (vel * cos(heading)) * 0.008;
+  joytracker_t.dest_y += (vel * sin(heading)) * 0.008;
+
   // Integrate cmd_vel to position for position control.
   joytracker_t.pos_az_cmd += rotate * 0.008;
   
-  if((joytracker_t.cmd_lock == 0) && (joy_cmd & 0xFFFF)){
+  if((joytracker_t.cmd_lock == 0) && (joy_cmd & 0x7FFF)){
     switch(joy_cmd){
       case 0x0080:// Set new north (Y)
       {
         joytracker_t.pos_az_cmd = 0.0;
         robot_odom->pos_abs_az = 0.0;
         robot_odom->pos_az = 0.0; 
-        joytracker_t.intg_rotate = 0.0;
+        joytracker_t.Intg_e_orient = 0.0;
       }
       break;
 
@@ -518,24 +547,77 @@ void maneuv3r_joyTracker(float vel, float heading, float rotate, uint16_t joy_cm
     }
         
     joytracker_t.cmd_lock = 1;
-  }else if((joytracker_t.cmd_lock == 1) && !(joy_cmd & 0xFFFF))
+  }else if((joytracker_t.cmd_lock == 1) && !(joy_cmd & 0x7FFF))
     joytracker_t.cmd_lock = 0;
 
+
+   /*========================== BEGIN LINEAR VELOCITY===================================*/
+    // Calculate the current distance (R) in polar coordinates
+    joytracker_t.diff_x = joytracker_t.dest_x - robot_odom->pos_x;// SV - PV
+    joytracker_t.diff_y = joytracker_t.dest_y - robot_odom->pos_y;// SV - PV
+
+    /*============================ BEGIN VELOCITY HEADING ================================*/
+    // Maintain heading to the destination
+    joytracker_t.cmd_heading = atan2pi(
+       joytracker_t.diff_y, 
+       joytracker_t.diff_x);// Calculate the heading
+    /*============================== END VELOCITY HEADING ================================*/
+    
+    // Take a square
+    joytracker_t.diff_x = joytracker_t.diff_x * joytracker_t.diff_x;// diff_x^2
+    joytracker_t.diff_y = joytracker_t.diff_y * joytracker_t.diff_y;// diff_y^2
+    // Claculate distance error e_dist(z)
+    // e_dist(z) = sqrt( (dest_x - pos_x)^2 + (dest_y - pos_y)^2 );
+    joytracker_t.e_dist = sqrt(joytracker_t.diff_x + joytracker_t.diff_y);// Euclidean distance
+  
+    // PID controller algorithm for distance tracking
+    joytracker_t.Intg_e_dist += joytracker_t.e_dist * pid_walk_t.Ki;// I term
+  
+    joytracker_t.Diff_e_dist =
+      (joytracker_t.e_dist - joytracker_t.prev_e_dist)
+      * pid_walk_t.Kd;                                                // D term
+    joytracker_t.prev_e_dist = joytracker_t.e_dist;                 // make a unit delay
+  
+    // Finally calculate the lienar velocity CV (command value)
+    joytracker_t.cmd_lvel =
+      (joytracker_t.e_dist * pid_walk_t.Kp) +
+      joytracker_t.Intg_e_dist +
+      joytracker_t.Diff_e_dist;
+
+    // Linear velocity envelope
+    // Max envelope
+//    pid_walk_t.max_vlin = abs(joytracker_t.out_vel);
+//    if(joytracker_t.cmd_lvel > pid_walk_t.max_vlin)
+//      joytracker_t.cmd_lvel = pid_walk_t.max_vlin;
+//    else if(joytracker_t.cmd_lvel < -pid_walk_t.max_vlin)
+//      joytracker_t.cmd_lvel = -pid_walk_t.max_vlin;
+    // Dead band
+    if((joytracker_t.cmd_lvel < pid_walk_t.min_vlin) && (joytracker_t.cmd_lvel > -pid_walk_t.min_vlin))
+      joytracker_t.cmd_lvel = 0.0;
+    /*============================== END LINEAR VELOCITY  ================================*/
+
+
   /*============================== BEGIN ORIENTATION ================================*/
-  joytracker_t.e_rotate = (joytracker_t.pos_az_cmd - robot_odom->pos_az);
-  joytracker_t.intg_rotate += joytracker_t.e_rotate * 0.001;
+  joytracker_t.e_orient = (joytracker_t.pos_az_cmd - robot_odom->pos_az);
+  joytracker_t.Intg_e_orient += joytracker_t.e_orient * 0.0003;
 
   // Reset integral term when meets this goal threshold.
-  if(joytracker_t.e_rotate < 0.005)
-    joytracker_t.intg_rotate = 0.0;
+  if(joytracker_t.e_orient < 0.01)
+    joytracker_t.Intg_e_orient = 0.0;
 
-  joytracker_t.next_vaz = 
-     (joytracker_t.e_rotate * 5.0) +
-      joytracker_t.intg_rotate;
+  joytracker_t.cmd_avel = 
+     (joytracker_t.e_orient * 5.0) +
+      joytracker_t.Intg_e_orient;
   /*============================== END ORIENTATION ================================*/
+
+  // Once all goals were satisfied, stop the robot
+  if ((abs(joytracker_t.e_dist) < DISTANCE_TOL)) {
+    joytracker_t.cmd_lvel = 0.0;
+    joytracker_t.Intg_e_dist = 0.0;
+  }
   
   maneuv3r_update_Cmdvel(
-    joytracker_t.out_vel, 
-    heading - robot_odom->pos_abs_az, 
-    joytracker_t.next_vaz);  
+    joytracker_t.cmd_lvel, 
+    joytracker_t.cmd_heading - robot_odom->pos_abs_az, 
+    joytracker_t.cmd_avel);  
 }
