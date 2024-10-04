@@ -1,6 +1,8 @@
 #include <Bluepad32.h>
 #include <uni.h>
 #include <Wire.h>
+
+#include "maneuv3r.h"
 #include "stdodom.h"
 
 // Conversion Constant
@@ -9,26 +11,8 @@
 #define OMNI_WHEEL_D  0.0727f // 72.7mm distance from robot center to wheel center
 #define OMNI_WHEEL_R  0.0190f // 19.0mm wheel radius
 
-#define G1_48 // Select 1:48 gear ratio
-
-#if defined(G1_100)
-  #define RAD_S_TO_RPM 954.93f    // rad/s to RPM with 1:100 gearbox scaling for commanding motor 
-  #define GEAR_RATIO  0.01f       // 1/100 gearbox ratio
-#elif defined(G1_48)
-  #define RAD_S_TO_RPM 458.3664f  // rad/s to RPM with 1:48 gearbox scaling for commanding motor 
-  #define GEAR_RATIO  0.02083f    // 1/48 gearbox ratio
-#elif defined(G1_30)
-  #define RAD_S_TO_RPM 318.31f    // rad/s to RPM with 1:30 gearbox scaling for commanding motor
-  #define GEAR_RATIO    0.0333f   // 1/30 gearbox ratio
-#elif defined(G1_20)
-  #define RAD_S_TO_RPM  190.9859  // rad/s to RPM with 1:20 gearbox scaling for commanding motor
-  #define GEAR_RATIO  0.05f       // 1/20 gearbox ratio
-#elif defined(G1_10)
-  #define RAD_S_TO_RPM  95.493    // rad/s to RPM with 1:10 gearbox scaling for commanding motor
-  #define GEAR_RATIO 0.10f        // 1/10 gearbox ratio
-#else
-  #error "Please select Gear ratio!"
-#endif
+#define RAD_S_TO_RPM 458.3664f  // rad/s to RPM with 1:48 gearbox scaling for commanding motor 
+#define GEAR_RATIO  0.02083f    // 1/48 gearbox ratio
 
 // Math constants
 #define RPM_TO_RAD_S  0.1047f // 1 rpm == 0.1047 rad/s 
@@ -54,6 +38,24 @@ odometry_t omni_odom;// Robot odometry frame data
 odometry_t optical_odom;// Optical odometry (only X and Y vel)
 odometry_t wheel_odom;// Wheel odometry (Only X and Y vel)
 
+pidConst_t pid_walk_t = {
+  3.5f, 0.0005f, 0.005f,   // Walk kPID Kp 1.8 Ki 0.0005 Kd 0.0
+  0.005f, 0.26f,        // Walk min and max velocity (m/s)
+  0.0f, 0.0f
+};// PID constant for linear motion
+
+pidConst_t pid_rotate_t = {
+  1.4f, 0.0015f, 0.0f,  // Rotate kPID
+  0.0f, 0.0f,
+  0.0005f, 3.5f    // Rotate min and max velocity (4.0 rad/s)
+};// PID constant for angular motion
+
+pidConst_t pid_twizzles_t = {
+  0.0f, 0.3f, 0.0045f,  // Twizzle rotate kPID Kp 0.86 Ki 0.00085 Kd 0.003
+  0.0f, 0.0f,
+  0.0f, 0.0f 
+};// PID constant for twizzles rotate control
+
 cmdvel_t omni_cmdvel;// Robot base-link frame velocity command
 headvel_t joy_headvel;
 wheelvel_t omni_wheelvel;// Per-wheel velocity command
@@ -63,17 +65,13 @@ TaskHandle_t Core0_t;
 
 // Global variable
 unsigned long runner_millis = 0;
-unsigned long qcheck_millis = 0;
 uint8_t main_fsm = 0;
 
-uint16_t joycmd = 0;
+// Communication core
+unsigned long bluepad32_millis = 0;
+unsigned long debugprint_millis = 0;
 
-float atan2pi(float y, float x) {
-  float at = atan2(y, x);
-  if (at < 0.0)
-    at += 6.28319;
-  return at;
-}
+uint16_t joycmd = 0;
 
 void sensor_Init() {
   /* Begin Sensor Initialization */
@@ -97,7 +95,7 @@ void sensor_Init() {
   Wire.begin();
 
   // Init magnetometer
-  hmc5883l_init();
+  // hmc5883l_init();
 
   // Init Gyro
   itg3205_init();
@@ -122,28 +120,22 @@ void omni_init(){
 
   // Initialize fuser
   fuser_Init(
-    &omni_odom,   // Robot's odometry
-    0.0,        // Filter weight of the wheel odom (vel_x) 0.625
-    0.0,        // Filter weight of the wheel odom (vel_y) 0.625
-    0.9999          // Filter weight of the gyro angular velocity (vel_az)
+    &omni_odom, // Robot's odometry
+    0.0f,        // Filter weight of the wheel odom (vel_x) 0.625
+    0.0f,        // Filter weight of the wheel odom (vel_y) 0.625
+    1.0f      // Filter weight of the gyro angular velocity (vel_az)
   );
   
   /* Begin maneuv3r algorithm */
   maneuv3r_init(
     &omni_odom, // Robot's system-wide odometry
-    &omni_cmdvel // Robot's system-wide cmd_vel
+    &omni_cmdvel, // Robot's system-wide cmd_vel
+    &pid_walk_t,
+    &pid_rotate_t,
+    &pid_twizzles_t
     );
-  maneuv3r_pidInit(
-    2.5, 0.0005, 0.005,   // Walk kPID Kp 1.8 Ki 0.0005 Kd 0.0
-    0.005, 0.26,        // Walk min and max velocity (m/s)
 
-    0.0, 0.3, 0.0045,  // Twizzle rotate kPID Kp 0.86 Ki 0.00085 Kd 0.003
-
-    1.4, 0.0015, 0.0,  // Rotate kPID
-    0.0005, 3.5    // Rotate min and max velocity (4.0 rad/s)
-  );
-
-  maneuv3r_update_Cmdvel(0.0, 0.0, 0.0);
+  maneuv3r_update_Cmdvel(0.0f, 0.0f, 0.0f);
   /* End maneuv3r algorithm */
 }
 
@@ -173,7 +165,7 @@ inline void computeOdom() {
 
   // Re-using the optical and wheel odometry struct.
   itg3205_getPosZ(&optical_odom);       // Integrate the angular velocity to estimate orientation.
-  hmc5883l_getPosZ(&wheel_odom);        // Update robot orientation (az) referenced to north, also update angular velocity.
+  //hmc5883l_getPosZ(&wheel_odom);        // Update robot orientation (az) referenced to north, also update angular velocity.
   fuser_processYaw(&optical_odom, &wheel_odom);// Fuse Gyro angular vel with Mag angular vel.
   
   adns5050_updateVel(&optical_odom);// Get X and Y velocity from mouse sensor.
@@ -216,28 +208,12 @@ inline void cmd_vel(cmdvel_t *command_vel) {
   motor_pidUpdate();// Do motor PID algorithm
 }
 
-void robot_runner() {
-
-  switch (main_fsm) {
-      case 0:
-      {
-//        maneuv3r_joyTracker(joy_headvel.vel, joy_headvel.heading, joy_headvel.vaz, joycmd_stat);
-
-      }
-      break;
-  }
-  
-}
-
-unsigned long bluepad32_millis = 0;
-unsigned long debugprint_millis = 0;
 void loop() {
      
     //Control loop here
     if ((micros() - runner_millis) > LOOP_TIME * 1000) {
       runner_millis = micros();
       computeOdom();
-      //robot_runner();
       if(abs(joy_headvel.vel) < 0.01)
         joy_headvel.heading = 0.0;
       maneuv3r_joyTracker(joy_headvel.vel, joy_headvel.heading, joy_headvel.vaz, joycmd);
@@ -249,27 +225,31 @@ void loop0(void *pvParameters){
   bluepad32_Init();
   
   while(1){
-   if((millis() - bluepad32_millis) > 100){
+   if((millis() - bluepad32_millis) > 80){
      bluepad32_millis = millis();
      joycmd = bluepad32_processControllers(&joy_headvel);
     }
   
-//  if((millis() - debugprint_millis) > 100){
-//      debugprint_millis = millis();
+  if((millis() - debugprint_millis) > 100){
+      debugprint_millis = millis();
 //      Serial.print("SurfaceQ:");
 //      Serial.print(adns5050_getSurfaceQ());
-//      Serial.print(",Vx:");
-//      Serial.print(omni_odom.vel_x);
-//      Serial.print(",Vy:");
-//      Serial.print(omni_odom.vel_y);
+      Serial.print(",Optical_Vx:");
+      Serial.print(optical_odom.vel_x);
+      Serial.print(",Optical_Vy:");
+      Serial.print(optical_odom.vel_y);
+      Serial.print(",Wheel_Vx:");
+      Serial.print(wheel_odom.vel_x);
+      Serial.print(",Wheel_Vy:");
+      Serial.print(wheel_odom.vel_y);
 //      Serial.print(",PosX:");
 //      Serial.print(omni_odom.pos_x);
 //      Serial.print(",PosY:");
 //      Serial.print(omni_odom.pos_y);
 //      Serial.print(",Orient:");
 //      Serial.print(omni_odom.pos_abs_az);
-//      Serial.print(",Heading");
-//      Serial.print(omni_odom.pos_heading);
+//      Serial.print(",CmdLvel:");
+//      Serial.print(joytracker_t.cmd_lvel);
 //      Serial.print(",V1:");
 //      Serial.print(omni_wheelvel.v1);
 //      Serial.print(",V2:");
@@ -282,8 +262,8 @@ void loop0(void *pvParameters){
 //      Serial.print(encoder_getM2());
 //      Serial.print(",M3:");
 //      Serial.print(encoder_getM3());
-//      Serial.println();
-//   }
+      Serial.println();
+   }
       //  hls_poll();
   }
 }

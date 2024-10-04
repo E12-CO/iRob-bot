@@ -85,14 +85,15 @@ void motor_omniInit(wheelvel_t *omni_wheelvel) {
 // CW -> command positive
 // CCW -> command negative
 //float error_percent;
-void motor_doPID(motor_var_t *motor_ptr_t, float sp_speed) {
+void motor_doPID(
+  motor_var_t *motor_ptr_t, 
+  float sp_speed) {
+  
   if(motor_ptr_t->prev_speed != sp_speed)
     motor_ptr_t->Intg_e_speed = 0.0;
 
   motor_ptr_t->prev_speed = sp_speed;
   motor_ptr_t->e_speed = sp_speed - motor_ptr_t->curr_speed;
-
-//  error_percent = motor_ptr_t->e_speed / sp_speed;
 
   motor_ptr_t->Intg_e_speed += motor_ptr_t->e_speed * motor_ptr_t->motor_Ki;
 
@@ -130,7 +131,10 @@ void motor_pidUpdate() {
     );
 }
 
-void motor_out(int m1, int m2, int m3) {
+void motor_out(
+  int m1, 
+  int m2, 
+  int m3) {
 
   ledcWrite(0, m1 > 0 ? m1 : 0);
   ledcWrite(1, m1 >= 0 ? 0 : -m1);

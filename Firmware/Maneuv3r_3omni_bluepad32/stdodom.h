@@ -1,3 +1,10 @@
+#ifndef STD_ODOMETRY_H
+#define STD_ODOMETRY_H
+
+#ifdef __cplusplus
+extern "C"{
+#endif
+
 // Robot odometry struct
 // User need to update following variables
 // pos_x, pos_y (velocity integration or optical flow position integration)
@@ -6,7 +13,7 @@
 // vel_x, vel_y (velocity sensed from encoder or optical flow calculated velocity)
 // vel_az (from kinematic's velocity, IMU's gyro or magnetometer differentiation)
 
-typedef struct odometry_t{
+typedef struct {
   // Current position
   float pos_x;// Linear X position (m)
   float pos_y;// Linear Y position (m)
@@ -29,40 +36,27 @@ typedef struct odometry_t{
   float pos_heading;// Angular Z heading (rad)
 
   float pos_abs_az;// Absolute angular z position
-};
+}odometry_t;
 
-typedef struct cmdvel_t{
+typedef struct {
   float vlx_out;// Linear X velocity output
   float vly_out;// Linear Y velocity output
   float vaz_out;// Angular Z velocity output
-};
+}cmdvel_t;
 
-typedef struct headvel_t{
+typedef struct{
   float vel;// Distance
   float heading;// Heading
   float vaz; // Angular velocity  
-};
+}headvel_t;
 
-typedef struct wheelvel_t{
+typedef struct {
   float v1;// Front wheel angular velocity (rad/s)
   float v2;// Left wheel angular velocity (rad/s)
   float v3;// Right wheel angular velocity (rad/s)
-};
+}wheelvel_t;
 
-typedef struct pidConst_t{
-  float Kp;
-  float Ki;
-  float Kd;
-  
-    // Maximum and Minimum linear velocity
-  float max_vlin;
-  float min_vlin;
-  // Maximum and Minimum linear velocity
-  float max_vang;
-  float min_vang;
-};
-
-typedef struct motor_var_t{
+typedef struct{
   float motor_Kp;
   float motor_Ki;
 
@@ -73,4 +67,10 @@ typedef struct motor_var_t{
   float Intg_e_speed;
 
   int speed_cmd;
-};
+}motor_var_t;
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
