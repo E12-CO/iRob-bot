@@ -164,8 +164,8 @@ void adns5050_updateVel(odometry_t *flow_odom){
     // (0.70 measured meter / 40 odom meter) * 0.005882 -> 0.010293
     // Original calibration at 1375 CPI
     // (0.32 m/s / 96 count) -> 0.003333
-    flow_odom->vel_x = (float)(dx * 0.003333);
-    flow_odom->vel_y = (float)(dy * 0.003333);
+    flow_odom->vel_x = (float)(dx * 0.00333);
+    flow_odom->vel_y = (float)(dy * 0.00333);
 
     // Calibration guide
     // 1. Focus the lens until getting the best surface quality reading (Good ligthing such as LED is needed).
