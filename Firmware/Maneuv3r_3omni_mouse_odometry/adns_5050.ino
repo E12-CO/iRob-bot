@@ -9,6 +9,10 @@
 #define REG_RDBRST  0x63 // Motion Burst, Read Delta X and Y in single command
 #define REG_LEDCTR  0x22 // LED control (strobe mode or always on)
 
+// Scaling factor
+#define FLO_X_SCALE   0.003333f
+#define FLO_Y_SCALE   0.003333f
+
 typedef struct pin_t{
   uint8_t ncs;
   uint8_t sio;
@@ -105,6 +109,7 @@ void adns5050_setcpi(){
   adns5050_writeReg(REG_MCTRL2, 0x1B);// Select 1375CPI
 }
 
+// Get surface quality after ands5050_getdXdY() polling
 uint8_t adns5050_getSurfaceQ(){
   return squal;
 }
@@ -160,12 +165,12 @@ void adns5050_getdXdY(int8_t *dX, int8_t *dY) {
 int8_t dx, dy;
 void adns5050_updateVel(odometry_t *flow_odom){
     adns5050_getdXdY(&dx, &dy);
-    // Original calibration at 500 CPI
-    // (0.70 measured meter / 40 odom meter) * 0.005882 -> 0.010293
+
     // Original calibration at 1375 CPI
     // (0.32 m/s / 96 count) -> 0.003333
-    flow_odom->vel_x = (float)(dx * 0.003333);
-    flow_odom->vel_y = (float)(dy * 0.003333);
+    
+    flow_odom->vel_x = (float)(dx * FLO_X_SCALE);
+    flow_odom->vel_y = (float)(dy * FLO_Y_SCALE);
 
     // Calibration guide
     // 1. Focus the lens until getting the best surface quality reading (Good ligthing such as LED is needed).
