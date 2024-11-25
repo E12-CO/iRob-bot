@@ -2,7 +2,6 @@ wheelvel_t *local_wheelvel_t;// Internal pointer used to access the Per-wheel ve
 
 #define MAX_SPEED  4095 // Max pwm 
 #define MIN_SPEED  5  // Min pwm
-//#define INTG_CAP   // Cap the integrator term
 
 #define M1_H  25
 #define M1_L  26
@@ -78,7 +77,6 @@ void motor_omniInit(wheelvel_t *omni_wheelvel) {
 // Spinning direction (viewing from the fron of the wheel)
 // CW -> command positive
 // CCW -> command negative
-//float error_percent;
 void motor_doPID(motor_var_t *motor_ptr_t, float sp_speed) {
   if(motor_ptr_t->prev_speed != sp_speed)
     motor_ptr_t->Intg_e_speed = 0.0;
@@ -86,12 +84,8 @@ void motor_doPID(motor_var_t *motor_ptr_t, float sp_speed) {
   motor_ptr_t->prev_speed = sp_speed;
   motor_ptr_t->e_speed = sp_speed - motor_ptr_t->curr_speed;
 
-//  error_percent = motor_ptr_t->e_speed / sp_speed;
-
   motor_ptr_t->Intg_e_speed += motor_ptr_t->e_speed * motor_ptr_t->motor_Ki;
 
-  //motor_ptr_t->Intg_e_speed = constrain(motor_ptr_t->Intg_e_speed, -512.0, 512.0);
-    
   motor_ptr_t->speed_cmd =
     round(
       (motor_ptr_t->e_speed * motor_ptr_t->motor_Kp) +
@@ -103,9 +97,6 @@ void motor_doPID(motor_var_t *motor_ptr_t, float sp_speed) {
     motor_ptr_t->speed_cmd = MAX_SPEED;
   else if (motor_ptr_t->speed_cmd < -MAX_SPEED)
     motor_ptr_t->speed_cmd = -MAX_SPEED;
-
-//  if((motor_ptr_t->speed_cmd < MIN_SPEED) && (motor_ptr_t->speed_cmd > -MIN_SPEED))  
-//    motor_ptr_t->speed_cmd = 0;
 }
 
 void motor_pidUpdate() {
