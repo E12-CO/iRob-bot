@@ -4,14 +4,25 @@ wheelvel_t *local_wheelvel_t;// Internal pointer used to access the Per-wheel ve
 #define MIN_SPEED  5  // Min pwm
 //#define INTG_CAP   // Cap the integrator term
 
-#define M1_H  25
-#define M1_L  26
-
-#define M2_H  27
-#define M2_L  14
-
-#define M3_H  13
-#define M3_L  4
+#ifndef IROB_UPSIZED
+  #define M1_H  25
+  #define M1_L  26
+  
+  #define M2_H  27
+  #define M2_L  14
+  
+  #define M3_H  13
+  #define M3_L  4
+#else
+  #define M1_H  25
+  #define M1_L  26
+  
+  #define M2_H  32
+  #define M2_L  33
+  
+  #define M3_H  22
+  #define M3_L  23
+#endif
 
 // TODO : Retune to get better input response.
 motor_var_t omni_m1_t = {

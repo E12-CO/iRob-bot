@@ -76,15 +76,13 @@ void maneuv3r_joyTracker(
 
   // Gas paddle (R2)
   if(joy_cmd & 0x8000){
+    goal_timeout = 0;
     vel *= 1.5f;  
     rotate *= 1.3f;
   }
 
-  // Velocity smoother
-  joytracker_t.next_vel += vel;
-  joytracker_t.next_vel -= joytracker_t.out_vel;
-  joytracker_t.out_vel = joytracker_t.next_vel * 0.125f;
-
+  joytracker_t.out_vel = vel; 
+    
   // Velocity Dead band
   if((joytracker_t.out_vel > -0.005f) && 
     (joytracker_t.out_vel < 0.005f))

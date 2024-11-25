@@ -5,14 +5,22 @@
 #include "maneuv3r.h"
 #include "stdodom.h"
 
+//#define IROB_UPSIZED
+
 // Conversion Constant
 
 // Robot dimension
-#define OMNI_WHEEL_D  0.0727f // 72.7mm distance from robot center to wheel center
-#define OMNI_WHEEL_R  0.0190f // 19.0mm wheel radius
-
-#define RAD_S_TO_RPM 458.3664f  // rad/s to RPM with 1:48 gearbox scaling for commanding motor 
-#define GEAR_RATIO  0.02083f    // 1/48 gearbox ratio
+#ifndef IROB_UPSIZED
+  #define OMNI_WHEEL_D  0.0727f // 72.7mm distance from robot center to wheel center
+  #define OMNI_WHEEL_R  0.0190f // 19.0mm wheel radius
+  #define RAD_S_TO_RPM 458.3664f  // rad/s to RPM with 1:48 gearbox scaling for commanding motor 
+  #define GEAR_RATIO  0.02083f    // 1/48 gearbox ratio
+#else
+  #define OMNI_WHEEL_D  0.240f // 240.0mm distance from robot center to wheel center
+  #define OMNI_WHEEL_R  0.0635f // 63.5mm wheel radius
+  #define RAD_S_TO_RPM 458.3664f  // rad/s to RPM with 1:48 gearbox scaling for commanding motor 
+  #define GEAR_RATIO  0.02083f    // 1/48 gearbox ratio
+#endif
 
 // Math constants
 #define RPM_TO_RAD_S  0.1047f // 1 rpm == 0.1047 rad/s 
@@ -74,6 +82,7 @@ unsigned long debugprint_millis = 0;
 uint16_t joycmd = 0;
 
 void sensor_Init() {
+#ifndef IROB_UPSIZED
   /* Begin Sensor Initialization */
   adns5050_init(
     ADNS5050_SPI_NCS,
@@ -95,14 +104,16 @@ void sensor_Init() {
   Wire.begin();
 
   // Init magnetometer
-  // hmc5883l_init();
+  hmc5883l_init();
 
   // Init Gyro
   itg3205_init();
 
   // Init HLS_LFCD2 LiDAR
   hls_initLiDAR();
+#else
   /* end Sensor Initialization */
+#endif
 }
 
 void omni_init(){
@@ -110,14 +121,18 @@ void omni_init(){
   sensor_Init();// Initialize all sensors.
   pinMode(2, OUTPUT);
   pinMode(0, INPUT);
-  
+
+#ifndef IROB_UPSIZED  
   while(digitalRead(0));
   Serial.println("Gyro calibrating");
   digitalWrite(2, HIGH);
   itg3205_calib();
+  hmc5883l_getInitialPosZ();
   digitalWrite(2, LOW);
   Serial.println("Done!");
+#endif
 
+#ifndef IROB_UPSIZED
   // Initialize fuser
   fuser_Init(
     &omni_odom, // Robot's odometry
@@ -125,7 +140,15 @@ void omni_init(){
     0.0f,        // Filter weight of the wheel odom (vel_y) 0.625
     1.0f      // Filter weight of the gyro angular velocity (vel_az)
   );
-  
+#else
+  fuser_Init(
+    &omni_odom, // Robot's odometry
+    1.0f,        // Filter weight of the wheel odom (vel_x) 0.625
+    1.0f,        // Filter weight of the wheel odom (vel_y) 0.625
+    1.0f      // Filter weight of the gyro angular velocity (vel_az)
+  );
+#endif
+
   /* Begin maneuv3r algorithm */
   maneuv3r_init(
     &omni_odom, // Robot's system-wide odometry
@@ -163,15 +186,20 @@ void setup() {
 inline void computeOdom() {
   encoder_doVel();// Estimate Wheel RPM.
 
+#ifndef IROB_UPSIZED
   // Re-using the optical and wheel odometry struct.
   itg3205_getPosZ(&optical_odom);       // Integrate the angular velocity to estimate orientation.
-  //hmc5883l_getPosZ(&wheel_odom);        // Update robot orientation (az) referenced to north, also update angular velocity.
+  hmc5883l_getPosZ(&wheel_odom);        // Update robot orientation (az) referenced to north, also update angular velocity.
   fuser_processYaw(&optical_odom, &wheel_odom);// Fuse Gyro angular vel with Mag angular vel.
   
   adns5050_updateVel(&optical_odom);// Get X and Y velocity from mouse sensor.
   odometry_wheelOdom(&wheel_odom);  // Get X and Y velocity from wheel encoders.
   fuser_processOdom(&optical_odom, &wheel_odom); // Fuse Optical flow odom with Wheel odom.
-
+#else
+  fuser_processYaw(&omni_odom, &omni_odom);// Fuse Gyro angular vel with Mag angular vel.
+  odometry_wheelOdom(&omni_odom);
+  
+#endif
   odometry_posUpdate(&omni_odom);// Update robot X, Y position by integrating vx and vy.
 }
 
@@ -214,8 +242,8 @@ void loop() {
     if ((micros() - runner_millis) > LOOP_TIME * 1000) {
       runner_millis = micros();
       computeOdom();
-      if(abs(joy_headvel.vel) < 0.01)
-        joy_headvel.heading = 0.0;
+//      if(abs(joy_headvel.vel) < 0.01)
+//        joy_headvel.heading = 0.0;
       maneuv3r_joyTracker(joy_headvel.vel, joy_headvel.heading, joy_headvel.vaz, joycmd);
       cmd_vel(&omni_cmdvel);
     }
@@ -234,14 +262,14 @@ void loop0(void *pvParameters){
       debugprint_millis = millis();
 //      Serial.print("SurfaceQ:");
 //      Serial.print(adns5050_getSurfaceQ());
-      Serial.print(",Optical_Vx:");
-      Serial.print(optical_odom.vel_x);
-      Serial.print(",Optical_Vy:");
-      Serial.print(optical_odom.vel_y);
-      Serial.print(",Wheel_Vx:");
-      Serial.print(wheel_odom.vel_x);
-      Serial.print(",Wheel_Vy:");
-      Serial.print(wheel_odom.vel_y);
+//      Serial.print(",Optical_Vx:");
+//      Serial.print(optical_odom.vel_x);
+//      Serial.print(",Optical_Vy:");
+//      Serial.print(optical_odom.vel_y);
+//      Serial.print(",Wheel_Vx:");
+//      Serial.print(wheel_odom.vel_x);
+//      Serial.print(",Wheel_Vy:");
+//      Serial.print(wheel_odom.vel_y);
 //      Serial.print(",PosX:");
 //      Serial.print(omni_odom.pos_x);
 //      Serial.print(",PosY:");
@@ -262,7 +290,7 @@ void loop0(void *pvParameters){
 //      Serial.print(encoder_getM2());
 //      Serial.print(",M3:");
 //      Serial.print(encoder_getM3());
-      Serial.println();
+//      Serial.println();
    }
       //  hls_poll();
   }

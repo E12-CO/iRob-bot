@@ -22,6 +22,7 @@ lidar_data hls_data;
 
 void hls_initLiDAR() {
   Serial2.begin(230400, SERIAL_8N1, RX2_pin, TX2_pin);
+//  Serial2.setRxBufferSize();
   Serial2.write('e');
 }
 

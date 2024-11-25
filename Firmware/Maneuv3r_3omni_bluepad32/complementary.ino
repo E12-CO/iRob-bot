@@ -29,18 +29,33 @@ void fuser_Init(
 }
 
 void fuser_processYaw(odometry_t *gyro_odom, odometry_t *mag_odom){
+  // Integrate Gyro with the previously fused data
+  gyro_odom->pos_abs_az = 
+    yaw_filter_t.data_sum +
+    (gyro_odom->vel_az * 0.008f);
+
+  // Fuse next data
   yaw_filter_t.data_sum = 
-    (yaw_filter_t.complementary_weight * gyro_odom->vel_az)
+    (yaw_filter_t.complementary_weight * gyro_odom->pos_abs_az)
     +
-    ((1 - yaw_filter_t.complementary_weight) * mag_odom->vel_az);
+    ((1 - yaw_filter_t.complementary_weight) * mag_odom->pos_abs_az);
+    
+  target_odom->pos_abs_az = yaw_filter_t.data_sum;
+
+  // Calculate angular z
+  target_odom->vel_az  =
+    (target_odom->pos_abs_az - target_odom->prev_pos_az)
+    * 125;
+  target_odom->prev_pos_az = target_odom->pos_abs_az;
+
+  // Calculate relative position
+  target_odom->pos_az += target_odom->vel_az * 0.008;
+    
   
-  target_odom->vel_az = yaw_filter_t.data_sum;
-  target_odom->pos_az += target_odom->vel_az * 0.008f;
-  target_odom->pos_abs_az += target_odom->vel_az * 0.008f;
-  if(target_odom->pos_abs_az > 6.28319f)
-    target_odom->pos_abs_az -= 6.28319f;
-  if(target_odom->pos_abs_az < 0.0f)
-    target_odom->pos_abs_az += 6.28319f;  
+//  if(target_odom->pos_abs_az > 6.28319f)
+//    target_odom->pos_abs_az -= 6.28319f;
+//  if(target_odom->pos_abs_az < 0.0f)
+//    target_odom->pos_abs_az += 6.28319f;  
 }
 
 void fuser_processOdom(odometry_t *optical_odom, odometry_t *wheel_odom){

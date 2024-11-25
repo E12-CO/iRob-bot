@@ -1,7 +1,10 @@
 #include <ESP32Encoder.h>
 
+#ifndef IROB_UPSIZED
 #define ENC_CONSTANT  267.8571f// 1 count * [(1 rev/28 count) * (1/0.008s) * (60s/1min)] = 267.8571 RPM
-
+#else
+#define ENC_CONSTANT  117.1875f// 1 count * [(1 rev/64 count) * (1/0.008s) * (60s/1min)] = 117.1875 RPM 
+#endif
 #define ALPHA_CONST   0.8f
 #define BETA_CONST    0.0f
 
@@ -9,14 +12,25 @@ ESP32Encoder enc_m1;
 ESP32Encoder enc_m2;
 ESP32Encoder enc_m3;
 
-#define ENC_M1_A  33
-#define ENC_M1_B  32
-
-#define ENC_M2_A  35
-#define ENC_M2_B  34
-
-#define ENC_M3_A  39
-#define ENC_M3_B  36
+#ifndef IROB_UPSIZED
+  #define ENC_M1_A  33
+  #define ENC_M1_B  32
+  
+  #define ENC_M2_A  35
+  #define ENC_M2_B  34
+  
+  #define ENC_M3_A  39
+  #define ENC_M3_B  36
+#else
+  #define ENC_M1_A  34
+  #define ENC_M1_B  35
+  
+  #define ENC_M2_A  36
+  #define ENC_M2_B  39
+  
+  #define ENC_M3_A  19
+  #define ENC_M3_B  21
+#endif
 
 typedef struct encoder_t{
   int32_t current_count;

@@ -36,4 +36,7 @@ void odometry_wheelOdom(odometry_t *wheel_odom){
 
   wheel_odom->vel_x = (v2-v3) * OMNI_SINE_120 * OMNI_WHEEL_R;
   wheel_odom->vel_y = (v1 - ((v2+v3) * 0.5)) * OMNI_WHEEL_R;
+#ifdef IROB_UPSIZED
+  wheel_odom->vel_az = ((v1 + v2 + v3) * OMNI_WHEEL_R) / OMNI_WHEEL_D;
+#endif
 }
