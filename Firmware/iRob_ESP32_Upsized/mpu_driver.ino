@@ -3,6 +3,8 @@
 #define MPU_ADDR          0x68
 
 #define REG_PWRMGMT_1     0x6B
+#define REG_PWRMGMT_2     0x6C
+#define REG_SMPRT_DIV     0x19
 #define REG_DLPFCONF      0x1A
 #define REG_GYROCONF      0x1B
 #define REG_ACCLCONF      0x1C
@@ -49,9 +51,20 @@ void mpu_init(){
     REG_PWRMGMT_1,
     0x00
     ); 
+
+  mpu_i2c_writeReg8(
+    REG_PWRMGMT_1,
+    0x00
+    );   
+
+  mpu_i2c_writeReg8(
+    REG_SMPRT_DIV,
+    2 - 1      // -> Sample rate of 500Hz
+    );
+    
   mpu_i2c_writeReg8(
     REG_DLPFCONF,
-    0x00
+    0x03            // -> Accel 44Hz - Gyro 42Hz
     );
   mpu_i2c_writeReg8(
     REG_GYROCONF,
@@ -88,8 +101,8 @@ void mpu_gyroCalRoutine(
     if(mpu_gyro_cal_counter == 2048){
       mpu_gyro_cal_counter = 0;
       mpu_offset_x16 = (int16_t)(mpu_offset_x >> 11);
-      mpu_offset_x16 = (int16_t)(mpu_offset_y >> 11);
-      mpu_offset_x16 = (int16_t)(mpu_offset_z >> 11);
+      mpu_offset_y16 = (int16_t)(mpu_offset_y >> 11);
+      mpu_offset_z16 = (int16_t)(mpu_offset_z >> 11);
       break;
     }
   }  
