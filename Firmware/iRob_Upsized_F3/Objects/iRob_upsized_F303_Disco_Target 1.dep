@@ -1,0 +1,151 @@
+Dependencies for Project 'iRob_upsized_F303_Disco', Target 'Target 1': (DO NOT MODIFY !)
+CompilerVersion: 6220000::V6.22::ARMCLANG
+F (.\src\src_main\main.c)(0x6709F0F0)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./src/src_app -I ./src/src_drv -I ./src/src_main-I./RTE/_Target_1-IC:/Users/thipo/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/thipo/AppData/Local/Arm/Packs/Keil/STM32F3xx_DFP/2.2.2/Drivers/CMSIS/Device/ST/STM32F3xx/Include-D__UVISION_VERSION="541" -DSTM32F303xC -D_RTE_-o ./objects/main.o -MMD)
+I (src\src_app\app_robot_runner.h)(0x6713600D)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\stm32f303xc.h)(0x67186AAC)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include\core_cm4.h)(0x664BE698)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\system_stm32f3xx.h)(0x67186AAC)
+I (src\src_drv\clk.h)(0x67024A11)
+I (src\src_drv\systick_millis.h)(0x6700B834)
+I (src\src_app\app_gpio.h)(0x670E1093)
+I (src\src_app\app_ros_comm.h)(0x6799C41B)
+I (src\src_drv\ros_usart.h)(0x66FE64C8)
+I (src\src_app\app_io_manager.h)(0x6704D511)
+I (src\src_drv\spi.h)(0x670A26C9)
+I (src\src_drv\i2c.h)(0x67037704)
+I (src\src_app\app_sensor_l3gd20.h)(0x670A1661)
+I (src\src_app\app_sensor_adns5090.h)(0x670A1659)
+I (src\src_app\app_sensor_lsm303dlhc.h)(0x674C9795)
+I (src\src_app\app_motor_control.h)(0x6708F707)
+I (src\src_drv\tim_pwm.h)(0x66FFB982)
+I (src\src_drv\tim_qdec.h)(0x66FFB91A)
+F (.\src\src_drv\clk.c)(0x6709FE14)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./src/src_app -I ./src/src_drv -I ./src/src_main-I./RTE/_Target_1-IC:/Users/thipo/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/thipo/AppData/Local/Arm/Packs/Keil/STM32F3xx_DFP/2.2.2/Drivers/CMSIS/Device/ST/STM32F3xx/Include-D__UVISION_VERSION="541" -DSTM32F303xC -D_RTE_-o ./objects/clk.o -MMD)
+I (src\src_drv\clk.h)(0x67024A11)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\stm32f303xc.h)(0x67186AAC)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include\core_cm4.h)(0x664BE698)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\system_stm32f3xx.h)(0x67186AAC)
+F (.\src\src_drv\clk.h)(0x67024A11)()
+F (.\src\src_drv\ros_usart.c)(0x674C7FC7)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./src/src_app -I ./src/src_drv -I ./src/src_main-I./RTE/_Target_1-IC:/Users/thipo/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/thipo/AppData/Local/Arm/Packs/Keil/STM32F3xx_DFP/2.2.2/Drivers/CMSIS/Device/ST/STM32F3xx/Include-D__UVISION_VERSION="541" -DSTM32F303xC -D_RTE_-o ./objects/ros_usart.o -MMD)
+I (src\src_drv\ros_usart.h)(0x66FE64C8)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\stm32f303xc.h)(0x67186AAC)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include\core_cm4.h)(0x664BE698)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\system_stm32f3xx.h)(0x67186AAC)
+F (.\src\src_drv\ros_usart.h)(0x66FE64C8)()
+F (.\src\src_drv\spi.c)(0x6721E4CB)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./src/src_app -I ./src/src_drv -I ./src/src_main-I./RTE/_Target_1-IC:/Users/thipo/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/thipo/AppData/Local/Arm/Packs/Keil/STM32F3xx_DFP/2.2.2/Drivers/CMSIS/Device/ST/STM32F3xx/Include-D__UVISION_VERSION="541" -DSTM32F303xC -D_RTE_-o ./objects/spi.o -MMD)
+I (src\src_drv\spi.h)(0x670A26C9)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\stm32f303xc.h)(0x67186AAC)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include\core_cm4.h)(0x664BE698)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\system_stm32f3xx.h)(0x67186AAC)
+F (.\src\src_drv\spi.h)(0x670A26C9)()
+F (.\src\src_drv\tim_qdec.c)(0x6711AB0B)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./src/src_app -I ./src/src_drv -I ./src/src_main-I./RTE/_Target_1-IC:/Users/thipo/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/thipo/AppData/Local/Arm/Packs/Keil/STM32F3xx_DFP/2.2.2/Drivers/CMSIS/Device/ST/STM32F3xx/Include-D__UVISION_VERSION="541" -DSTM32F303xC -D_RTE_-o ./objects/tim_qdec.o -MMD)
+I (src\src_drv\tim_qdec.h)(0x66FFB91A)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\stm32f303xc.h)(0x67186AAC)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include\core_cm4.h)(0x664BE698)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\system_stm32f3xx.h)(0x67186AAC)
+F (.\src\src_drv\tim_qdec.h)(0x66FFB91A)()
+F (.\src\src_drv\tim_pwm.c)(0x670E145F)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./src/src_app -I ./src/src_drv -I ./src/src_main-I./RTE/_Target_1-IC:/Users/thipo/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/thipo/AppData/Local/Arm/Packs/Keil/STM32F3xx_DFP/2.2.2/Drivers/CMSIS/Device/ST/STM32F3xx/Include-D__UVISION_VERSION="541" -DSTM32F303xC -D_RTE_-o ./objects/tim_pwm.o -MMD)
+I (src\src_drv\tim_pwm.h)(0x66FFB982)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\stm32f303xc.h)(0x67186AAC)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include\core_cm4.h)(0x664BE698)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\system_stm32f3xx.h)(0x67186AAC)
+F (.\src\src_drv\tim_pwm.h)(0x66FFB982)()
+F (.\src\src_drv\i2c.c)(0x67501ECA)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./src/src_app -I ./src/src_drv -I ./src/src_main-I./RTE/_Target_1-IC:/Users/thipo/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/thipo/AppData/Local/Arm/Packs/Keil/STM32F3xx_DFP/2.2.2/Drivers/CMSIS/Device/ST/STM32F3xx/Include-D__UVISION_VERSION="541" -DSTM32F303xC -D_RTE_-o ./objects/i2c.o -MMD)
+I (src\src_drv\i2c.h)(0x67037704)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\stm32f303xc.h)(0x67186AAC)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include\core_cm4.h)(0x664BE698)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\system_stm32f3xx.h)(0x67186AAC)
+F (.\src\src_drv\i2c.h)(0x67037704)()
+F (.\src\src_drv\systick_millis.c)(0x6709F98E)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./src/src_app -I ./src/src_drv -I ./src/src_main-I./RTE/_Target_1-IC:/Users/thipo/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/thipo/AppData/Local/Arm/Packs/Keil/STM32F3xx_DFP/2.2.2/Drivers/CMSIS/Device/ST/STM32F3xx/Include-D__UVISION_VERSION="541" -DSTM32F303xC -D_RTE_-o ./objects/systick_millis.o -MMD)
+I (src\src_drv\systick_millis.h)(0x6700B834)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\stm32f303xc.h)(0x67186AAC)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include\core_cm4.h)(0x664BE698)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\system_stm32f3xx.h)(0x67186AAC)
+F (.\src\src_drv\systick_millis.h)(0x6700B834)()
+F (.\src\src_app\app_ros_comm.c)(0x6799C5CD)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./src/src_app -I ./src/src_drv -I ./src/src_main-I./RTE/_Target_1-IC:/Users/thipo/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/thipo/AppData/Local/Arm/Packs/Keil/STM32F3xx_DFP/2.2.2/Drivers/CMSIS/Device/ST/STM32F3xx/Include-D__UVISION_VERSION="541" -DSTM32F303xC -D_RTE_-o ./objects/app_ros_comm.o -MMD)
+I (src\src_app\app_ros_comm.h)(0x6799C41B)
+I (src\src_drv\ros_usart.h)(0x66FE64C8)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\stm32f303xc.h)(0x67186AAC)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include\core_cm4.h)(0x664BE698)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\system_stm32f3xx.h)(0x67186AAC)
+I (src\src_app\app_io_manager.h)(0x6704D511)
+I (src\src_drv\spi.h)(0x670A26C9)
+I (src\src_drv\i2c.h)(0x67037704)
+I (src\src_app\app_sensor_l3gd20.h)(0x670A1661)
+I (src\src_app\app_gpio.h)(0x670E1093)
+I (src\src_app\app_sensor_adns5090.h)(0x670A1659)
+I (src\src_app\app_sensor_lsm303dlhc.h)(0x674C9795)
+I (src\src_app\app_motor_control.h)(0x6708F707)
+I (src\src_drv\tim_pwm.h)(0x66FFB982)
+I (src\src_drv\tim_qdec.h)(0x66FFB91A)
+F (.\src\src_app\app_ros_comm.h)(0x6799C41B)()
+F (.\src\src_app\app_sensor_lsm303dlhc.c)(0x676123B1)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./src/src_app -I ./src/src_drv -I ./src/src_main-I./RTE/_Target_1-IC:/Users/thipo/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/thipo/AppData/Local/Arm/Packs/Keil/STM32F3xx_DFP/2.2.2/Drivers/CMSIS/Device/ST/STM32F3xx/Include-D__UVISION_VERSION="541" -DSTM32F303xC -D_RTE_-o ./objects/app_sensor_lsm303dlhc.o -MMD)
+I (src\src_app\app_sensor_lsm303dlhc.h)(0x674C9795)
+I (src\src_drv\i2c.h)(0x67037704)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\stm32f303xc.h)(0x67186AAC)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include\core_cm4.h)(0x664BE698)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\system_stm32f3xx.h)(0x67186AAC)
+F (.\src\src_app\app_sensor_lsm303dlhc.h)(0x674C9795)()
+F (.\src\src_app\app_sensor_l3gd20.c)(0x670A4087)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./src/src_app -I ./src/src_drv -I ./src/src_main-I./RTE/_Target_1-IC:/Users/thipo/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/thipo/AppData/Local/Arm/Packs/Keil/STM32F3xx_DFP/2.2.2/Drivers/CMSIS/Device/ST/STM32F3xx/Include-D__UVISION_VERSION="541" -DSTM32F303xC -D_RTE_-o ./objects/app_sensor_l3gd20.o -MMD)
+I (src\src_app\app_sensor_l3gd20.h)(0x670A1661)
+I (src\src_drv\spi.h)(0x670A26C9)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\stm32f303xc.h)(0x67186AAC)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include\core_cm4.h)(0x664BE698)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\system_stm32f3xx.h)(0x67186AAC)
+I (src\src_app\app_gpio.h)(0x670E1093)
+F (.\src\src_app\app_sensor_l3gd20.h)(0x670A1661)()
+F (.\src\src_app\app_sensor_adns5090.c)(0x67135944)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./src/src_app -I ./src/src_drv -I ./src/src_main-I./RTE/_Target_1-IC:/Users/thipo/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/thipo/AppData/Local/Arm/Packs/Keil/STM32F3xx_DFP/2.2.2/Drivers/CMSIS/Device/ST/STM32F3xx/Include-D__UVISION_VERSION="541" -DSTM32F303xC -D_RTE_-o ./objects/app_sensor_adns5090.o -MMD)
+I (src\src_app\app_sensor_adns5090.h)(0x670A1659)
+I (src\src_drv\spi.h)(0x670A26C9)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\stm32f303xc.h)(0x67186AAC)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include\core_cm4.h)(0x664BE698)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\system_stm32f3xx.h)(0x67186AAC)
+I (src\src_app\app_gpio.h)(0x670E1093)
+F (.\src\src_app\app_sensor_adns5090.h)(0x670A1659)()
+F (.\src\src_app\app_io_manager.c)(0x674D6CDC)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./src/src_app -I ./src/src_drv -I ./src/src_main-I./RTE/_Target_1-IC:/Users/thipo/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/thipo/AppData/Local/Arm/Packs/Keil/STM32F3xx_DFP/2.2.2/Drivers/CMSIS/Device/ST/STM32F3xx/Include-D__UVISION_VERSION="541" -DSTM32F303xC -D_RTE_-o ./objects/app_io_manager.o -MMD)
+I (src\src_app\app_io_manager.h)(0x6704D511)
+I (src\src_drv\spi.h)(0x670A26C9)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\stm32f303xc.h)(0x67186AAC)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include\core_cm4.h)(0x664BE698)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\system_stm32f3xx.h)(0x67186AAC)
+I (src\src_drv\i2c.h)(0x67037704)
+I (src\src_app\app_sensor_l3gd20.h)(0x670A1661)
+I (src\src_app\app_gpio.h)(0x670E1093)
+I (src\src_app\app_sensor_adns5090.h)(0x670A1659)
+I (src\src_app\app_sensor_lsm303dlhc.h)(0x674C9795)
+F (.\src\src_app\app_io_manager.h)(0x6704D511)()
+F (.\src\src_app\app_motor_control.c)(0x67597F66)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./src/src_app -I ./src/src_drv -I ./src/src_main-I./RTE/_Target_1-IC:/Users/thipo/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/thipo/AppData/Local/Arm/Packs/Keil/STM32F3xx_DFP/2.2.2/Drivers/CMSIS/Device/ST/STM32F3xx/Include-D__UVISION_VERSION="541" -DSTM32F303xC -D_RTE_-o ./objects/app_motor_control.o -MMD)
+I (src\src_app\app_motor_control.h)(0x6708F707)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\stm32f303xc.h)(0x67186AAC)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include\core_cm4.h)(0x664BE698)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\system_stm32f3xx.h)(0x67186AAC)
+I (src\src_drv\tim_pwm.h)(0x66FFB982)
+I (src\src_drv\tim_qdec.h)(0x66FFB91A)
+I (src\src_app\app_gpio.h)(0x670E1093)
+F (.\src\src_app\app_motor_control.h)(0x6708F707)()
+F (.\src\src_app\app_robot_runner.c)(0x67501D7E)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./src/src_app -I ./src/src_drv -I ./src/src_main-I./RTE/_Target_1-IC:/Users/thipo/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/thipo/AppData/Local/Arm/Packs/Keil/STM32F3xx_DFP/2.2.2/Drivers/CMSIS/Device/ST/STM32F3xx/Include-D__UVISION_VERSION="541" -DSTM32F303xC -D_RTE_-o ./objects/app_robot_runner.o -MMD)
+I (src\src_app\app_robot_runner.h)(0x6713600D)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\stm32f303xc.h)(0x67186AAC)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include\core_cm4.h)(0x664BE698)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\system_stm32f3xx.h)(0x67186AAC)
+I (src\src_drv\clk.h)(0x67024A11)
+I (src\src_drv\systick_millis.h)(0x6700B834)
+I (src\src_app\app_gpio.h)(0x670E1093)
+I (src\src_app\app_ros_comm.h)(0x6799C41B)
+I (src\src_drv\ros_usart.h)(0x66FE64C8)
+I (src\src_app\app_io_manager.h)(0x6704D511)
+I (src\src_drv\spi.h)(0x670A26C9)
+I (src\src_drv\i2c.h)(0x67037704)
+I (src\src_app\app_sensor_l3gd20.h)(0x670A1661)
+I (src\src_app\app_sensor_adns5090.h)(0x670A1659)
+I (src\src_app\app_sensor_lsm303dlhc.h)(0x674C9795)
+I (src\src_app\app_motor_control.h)(0x6708F707)
+I (src\src_drv\tim_pwm.h)(0x66FFB982)
+I (src\src_drv\tim_qdec.h)(0x66FFB91A)
+F (.\src\src_app\app_robot_runner.h)(0x6713600D)()
+F (.\src\src_app\app_gpio.h)(0x670E1093)()
+F (RTE/Device/STM32F303VCTx/startup_stm32f303xc.s)(0x66430AF7)(--target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -masm=auto  -Wa,armasm,--diag_suppress=A1950W -c-gdwarf-4-I./RTE/_Target_1-IC:/Users/thipo/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/thipo/AppData/Local/Arm/Packs/Keil/STM32F3xx_DFP/2.2.2/Drivers/CMSIS/Device/ST/STM32F3xx/Include-Wa,armasm,--pd,"__UVISION_VERSION SETA 541" -Wa,armasm,--pd,"STM32F303xC SETA 1" -Wa,armasm,--pd,"_RTE_ SETA 1"-o ./objects/startup_stm32f303xc.o)
+F (RTE/Device/STM32F303VCTx/system_stm32f3xx.c)(0x66FE595A)(-xc -std=c11 --target=arm-arm-none-eabi -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -c-fno-rtti -funsigned-char -fshort-enums -fshort-wchar-gdwarf-4 -O1 -ffunction-sections -Wno-packed -Wno-missing-variable-declarations -Wno-missing-prototypes -Wno-missing-noreturn -Wno-sign-conversion -Wno-nonportable-include-path -Wno-reserved-id-macro -Wno-unused-macros -Wno-documentation-unknown-command -Wno-documentation -Wno-license-management -Wno-parentheses-equality -Wno-reserved-identifier -I ./src/src_app -I ./src/src_drv -I ./src/src_main-I./RTE/_Target_1-IC:/Users/thipo/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include-IC:/Users/thipo/AppData/Local/Arm/Packs/Keil/STM32F3xx_DFP/2.2.2/Drivers/CMSIS/Device/ST/STM32F3xx/Include-D__UVISION_VERSION="541" -DSTM32F303xC -D_RTE_-o ./objects/system_stm32f3xx.o -MMD)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\stm32f3xx.h)(0x67186AAC)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\stm32f303xc.h)(0x67186AAC)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\ARM\CMSIS\6.1.0\CMSIS\Core\Include\core_cm4.h)(0x664BE698)
+I (C:\Users\thipo\AppData\Local\Arm\Packs\Keil\STM32F3xx_DFP\2.2.2\Drivers\CMSIS\Device\ST\STM32F3xx\Include\system_stm32f3xx.h)(0x67186AAC)

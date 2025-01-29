@@ -1,0 +1,22 @@
+--cpu=Cortex-M4.fp.sp
+".\objects\main.o"
+".\objects\clk.o"
+".\objects\ros_usart.o"
+".\objects\spi.o"
+".\objects\tim_qdec.o"
+".\objects\tim_pwm.o"
+".\objects\i2c.o"
+".\objects\systick_millis.o"
+".\objects\app_ros_comm.o"
+".\objects\app_sensor_lsm303dlhc.o"
+".\objects\app_sensor_l3gd20.o"
+".\objects\app_sensor_adns5090.o"
+".\objects\app_io_manager.o"
+".\objects\app_motor_control.o"
+".\objects\app_robot_runner.o"
+".\objects\startup_stm32f303xc.o"
+".\objects\system_stm32f3xx.o"
+--strict --scatter ".\Objects\iRob_upsized_F303_Disco.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list ".\Listings\iRob_upsized_F303_Disco.map" -o .\Objects\iRob_upsized_F303_Disco.axf
