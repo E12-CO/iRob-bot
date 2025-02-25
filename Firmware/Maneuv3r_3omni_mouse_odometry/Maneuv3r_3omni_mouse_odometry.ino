@@ -1,5 +1,5 @@
 #include <Wire.h>
-#include "stdodom.h"
+#include "stdirob.h"
 
 // Conversion Constant
 
@@ -7,7 +7,8 @@
 #define OMNI_WHEEL_D  0.0727f // 72.7mm distance from robot center to wheel center
 #define OMNI_WHEEL_R  0.0190f // 19.0mm wheel radius
 
-#define G1_48 // Select 1:48 gear ratio
+//#define G1_48 // Select 1:48 gear ratio
+#define G1_24 // Select 1:24 gear ratio
 
 #if defined(G1_100)
   #define RAD_S_TO_RPM 954.93f    // rad/s to RPM with 1:100 gearbox scaling for commanding motor 
@@ -18,6 +19,9 @@
 #elif defined(G1_30)
   #define RAD_S_TO_RPM 318.31f    // rad/s to RPM with 1:30 gearbox scaling for commanding motor
   #define GEAR_RATIO    0.0333f   // 1/30 gearbox ratio
+#elif defined(G1_24)
+  #define RAD_S_TO_RPM 229.1832f  // rad/s to RPM with 1:24 gearbox scaling for commanding motor 
+  #define GEAR_RATIO  0.04166f    // 1/24 gearbox ratio  
 #elif defined(G1_20)
   #define RAD_S_TO_RPM  190.9859  // rad/s to RPM with 1:20 gearbox scaling for commanding motor
   #define GEAR_RATIO  0.05f       // 1/20 gearbox ratio
@@ -110,6 +114,27 @@ void task_Init(){
         
 }
 
+uint16_t poseIndex;
+poseArray pose0[]={
+  {0.50, 0.21, -1.570796},
+  {0.0, 0.46, 1.570796},
+  {0.0, 0.00, 0.0}
+};
+
+//poseArray pose0[]={
+//  {0.5, 0.0, -1.570796},
+//  {0.50, 0.50, 0},
+//  {0.0, 0.50, 1.570796},
+//  {0.0, 0.0, 0.0}
+//};
+
+//poseArray pose0[]={
+//  {0.9, 0.0, 0.0},
+//  {0.9, 0.9, 0.0},
+//  {0.0, 0.9, 0.0},
+//  {0.0, 0.0, 0.0}
+//};
+
 void setup() {
   // put your setup code here, to run once:
   motor_omniInit(&omni_wheelvel);// Pass the pointer to Wheel velocity command
@@ -131,8 +156,8 @@ void setup() {
   // Initialize fuser
   fuser_Init(
     &omni_odom,   // Robot's odometry
-    0.625,        // Filter weight of the wheel odom (vel_x) 0.625
-    0.625,        // Filter weight of the wheel odom (vel_y) 0.625
+    0.0,        // Filter weight of the wheel odom (vel_x) 0.625
+    0.0,        // Filter weight of the wheel odom (vel_y) 0.625
     1.0          // Filter weight of the gyro angular velocity (vel_az)
   );
   
@@ -142,13 +167,10 @@ void setup() {
     &omni_cmdvel // Robot's system-wide cmd_vel
     );
   maneuv3r_pidInit(
-    1.2, 0.0005, 0.0,   // Walk kPID Kp 1.8 Ki 0.0005 Kd 0.0
-    0.005, 0.26,        // Walk min and max velocity (m/s)
+    2.0, 0.001, 0.001,   // Walk kPID Kp 2.5 Ki 0.003 Kd 0.0
+    0.005, 0.45,        // Walk min and max velocity (m/s)
 
-    0.0, 0.3, 0.0045,  // Twizzle rotate kPID Kp 0.86 Ki 0.00085 Kd 0.003
-
-    1.4, 0.0015, 0.0,  // Rotate kPID
-    0.0005, 3.5    // Rotate min and max velocity (4.0 rad/s)
+    0.5, 0.12, 0.0  // Twizzle rotate kPID Kp 0.86 Ki 0.00085 Kd 0.003
   );
 
   maneuv3r_update_Cmdvel(0.0, 0.0, 0.0);
@@ -203,51 +225,42 @@ inline void cmd_vel(cmdvel_t *command_vel) {
   motor_pidUpdate();// Do motor PID algorithm
 }
 uint8_t play_cnt = 0;
+float circle = 0.0;
 void robot_runner() {
 
   switch (main_fsm) {
     case 0:
       {
-//        if(maneuv3r_walkTracker(0.8, -1.570797))
-          main_fsm = 1;
+        main_fsm = 1;
+//        if (maneuv3r_twizzlesTrackerAbs(
+//            pose0[poseIndex].px,
+//            pose0[poseIndex].py,
+//            pose0[poseIndex].tz
+//          )
+//        ) {
+//          poseIndex++;
+//          if(poseIndex == (sizeof(pose0) / 12)){
+//            poseIndex = 0;
+//            main_fsm = 255;
+//          }
+//        }
       }
+      break;
+      
       break;
 
     case 1:
-      {
-        if (maneuv3r_twizzlesTracker(0.8, 0.0, 0.0)) {
-           main_fsm = 2;
+    {
+        if (maneuv3r_twizzlesTrackerAbs(
+            cos(circle) * 0.5,
+            sin(circle) * 0.5,
+            0.0
+          )
+        ) {
+          circle += 0.349066;
         }
-      }
-      break;
-
-    case 2:
-      {
-        if (maneuv3r_twizzlesTracker(0.8, -1.570797, 0.0)) {
-           main_fsm = 3;
-        }
-      }
-      break;
-
-    case 3:
-      {
-        if (maneuv3r_twizzlesTracker(0.8, -3.141593, 0.0)) {
-           main_fsm = 4;
-        }
-      }
-      break;
-
-    case 4:
-      {
-        if (maneuv3r_twizzlesTracker(0.8, 1.570797, 0.0)) {
-            play_cnt++;
-            if(play_cnt == 4)
-              main_fsm = 255;
-            else
-              main_fsm = 1;
-        }
-      }
-      break;  
+    }
+    break;
 
     case 255:
       {
@@ -270,34 +283,14 @@ void loop() {
 void loop0(void *pvParameters){
   
   while(1){
-//      Serial.print(",Surface Q:");
-//      Serial.print(adns5050_getSurfaceQ());
-      Serial.print(",Vx :");
-      Serial.print(omni_odom.vel_x);
-      Serial.print(",Vy :");
-      Serial.print(omni_odom.vel_y);
-      Serial.print(",Pos X:");
-      Serial.print(omni_odom.pos_x);
-      Serial.print(",Pos Y:");
-      Serial.print(omni_odom.pos_y);
-      Serial.print(",Orient:");
-      Serial.print(omni_odom.pos_abs_az);
-      Serial.print(",Heading");
-      Serial.print(omni_odom.pos_heading);
-//      Serial.print(",V1:");
-//      Serial.print(omni_wheelvel.v1);
-//      Serial.print(",V2:");
-//      Serial.print(omni_wheelvel.v2);
-//      Serial.print(",V3:");
-//      Serial.print(omni_wheelvel.v3);
-//      Serial.print(",M1:");
-//      Serial.print(encoder_getM1());
-//      Serial.print(",M2:");
-//      Serial.print(encoder_getM2());
-//      Serial.print(",M3:");
-//      Serial.print(encoder_getM3());
-      Serial.println();
-      delay(100);
-      //  hls_poll();
+     Serial.print("Px:");
+     Serial.print(omni_odom.pos_x);
+     Serial.print("\tPy:");
+     Serial.println(omni_odom.pos_y);
+     Serial.print("Vx:");
+     Serial.print(omni_odom.vel_x);
+     Serial.print("\tVy:");
+     Serial.println(omni_odom.vel_y);
+     delay(100);
   }
 }

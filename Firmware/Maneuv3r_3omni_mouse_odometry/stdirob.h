@@ -1,3 +1,5 @@
+#ifndef STD_IROB_H
+#define STD_IROB_H
 // Robot odometry struct
 // User need to update following variables
 // pos_x, pos_y (velocity integration or optical flow position integration)
@@ -41,6 +43,7 @@ typedef struct wheelvel_t{
   float v1;// Front wheel angular velocity (rad/s)
   float v2;// Left wheel angular velocity (rad/s)
   float v3;// Right wheel angular velocity (rad/s)
+  float v4;
 };
 
 typedef struct pidConst_t{
@@ -68,3 +71,11 @@ typedef struct motor_var_t{
 
   int speed_cmd;
 };
+
+typedef struct poseArray{
+  float px;// pose x
+  float py;// pose y
+  float tz;// pose theta z
+};
+
+#endif

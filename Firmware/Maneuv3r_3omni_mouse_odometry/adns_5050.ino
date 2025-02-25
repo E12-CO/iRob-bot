@@ -10,8 +10,8 @@
 #define REG_LEDCTR  0x22 // LED control (strobe mode or always on)
 
 // Scaling factor
-#define FLO_X_SCALE   0.003333f
-#define FLO_Y_SCALE   0.003333f
+#define FLO_X_SCALE   0.00640f //0.00655
+#define FLO_Y_SCALE   0.00640f //0.00655
 
 typedef struct pin_t{
   uint8_t ncs;
@@ -104,9 +104,9 @@ void adns5050_setLED() {
   adns5050_writeReg(REG_LEDCTR, 0x80);
 }
 
-// Set Count Per Inch to 1375 Count per Inch
+// Set Count Per Inch to 625 Count per Inch
 void adns5050_setcpi(){
-  adns5050_writeReg(REG_MCTRL2, 0x1B);// Select 1375CPI
+  adns5050_writeReg(REG_MCTRL2, 0x15);// Select 625CPI
 }
 
 // Get surface quality after ands5050_getdXdY() polling

@@ -1,7 +1,7 @@
 wheelvel_t *local_wheelvel_t;// Internal pointer used to access the Per-wheel velocity command.
 
 #define MAX_SPEED  4095 // Max pwm 
-#define MIN_SPEED  5  // Min pwm
+#define MIN_SPEED  0  // Min pwm
 
 #define M1_H  25
 #define M1_L  26
@@ -14,7 +14,7 @@ wheelvel_t *local_wheelvel_t;// Internal pointer used to access the Per-wheel ve
 
 // TODO : Retune to get better input response.
 motor_var_t omni_m1_t = {
-  .motor_Kp = 4.0,// Motor 1 Kp
+  .motor_Kp = 4.5,// Motor 1 Kp
   .motor_Ki = 0.14,// Motor 1 Ki
 
   .curr_speed = 0.0,
@@ -25,7 +25,7 @@ motor_var_t omni_m1_t = {
 };
 
 motor_var_t omni_m2_t = {
-  .motor_Kp = 4.0,// Motor 2 Kp
+  .motor_Kp = 4.3,// Motor 2 Kp
   .motor_Ki = 0.14,// Motor 2 Ki
 
   .curr_speed = 0.0,
@@ -36,7 +36,7 @@ motor_var_t omni_m2_t = {
 };
 
 motor_var_t omni_m3_t = {
-  .motor_Kp = 4.0,// Motor 3 Kp
+  .motor_Kp = 4.9,// Motor 3 Kp
   .motor_Ki = 0.14,// Motor 3 Ki
 
   .curr_speed = 0.0,
