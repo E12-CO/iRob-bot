@@ -1,0 +1,9 @@
+*.hex
+*.o
+*.d
+*.axf
+*.lnp
+*.iex
+*.dep
+*.bak
+*.Bak
