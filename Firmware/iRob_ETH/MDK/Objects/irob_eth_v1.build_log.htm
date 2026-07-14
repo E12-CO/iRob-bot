@@ -1,0 +1,111 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: µVision V5.41.0.0
+Copyright (C) 2024 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: Thipok Jiamjatapan
+-
+User-based license: Keil MDK Community (non-commercial free of charge)
+Valid until: Jun 1 2033. Cached until: Jul 20 2026
+ 
+Tool Versions:
+Toolchain:       Keil MDK Community (non-commercial free of charge  Version: 5.41.0.0
+Toolchain Path:  C:\Users\thipo\AppData\Local\Keil_v5\ARM\ARMCLANG\Bin
+C Compiler:      ArmClang.exe V6.22
+Assembler:       Armasm.exe V6.22
+Linker/Locator:  ArmLink.exe V6.22
+Library Manager: ArmAr.exe V6.22
+Hex Converter:   FromElf.exe V6.22
+CPU DLL:         SARMCM3.DLL V5.41.0.0
+Dialog DLL:      DCM.DLL V1.17.5.0
+Target DLL:      Segger\JL2CM3.dll V2.99.45.0
+Dialog DLL:      TCM.DLL V1.56.4.0
+ 
+<h2>Project:</h2>
+C:\Users\thipo\OneDrive\Documents\DevTLHX\Projects\iRob-bot\Firmware\iRob_ETH\MDK\irob_eth_v1.uvprojx
+Project File Date:  07/14/2026
+
+<h2>Output:</h2>
+*** Using Compiler 'V6.22', folder: 'C:\Users\thipo\AppData\Local\Keil_v5\ARM\ARMCLANG\Bin'
+Build target 'CH32F208RB'
+Validate Run Time Environment: errors/warnings detected:
+'Keil::CH32F2xx:StdPeriph Drivers:Framework@1.0.0': warning #515: Additional software components required
+ require CH32F2xx:Startup: Select component from list
+    'Keil::CH32F2xx:Startup'
+'Keil::CH32F2xx:StdPeriph Drivers:FLASH@1.0.0': warning #515: Additional software components required
+ require CH32F2xx:Startup: Select component from list
+    'Keil::CH32F2xx:Startup'
+'Keil::CH32F2xx:StdPeriph Drivers:DBGMCU@1.0.0': warning #515: Additional software components required
+ require CH32F2xx:Startup: Select component from list
+    'Keil::CH32F2xx:Startup'
+'Keil::CH32F2xx:StdPeriph Drivers:RCC@1.0.0': warning #515: Additional software components required
+ require CH32F2xx:Startup: Select component from list
+    'Keil::CH32F2xx:Startup'
+compiling systick.c...
+linking...
+Program Size: Code=25960 RO-data=536 RW-data=256 ZI-data=10048  
+FromELF: creating hex file...
+".\Objects\irob_eth_v1.axf" - 0 Error(s), 0 Warning(s).
+
+<h2>Software Packages used:</h2>
+
+Package Vendor: ARM
+                https://www.keil.com/pack/ARM.CMSIS.6.3.0.pack
+                ARM::CMSIS@6.3.0
+                CMSIS (Common Microcontroller Software Interface Standard)
+   * Component: CORE Version: 6.2.0
+
+Package Vendor: Keil
+                http://www.wch.cn/Keil.WCH32F2xx_DFP.1.0.3.pack
+                Keil::WCH32F2xx_DFP@1.0.3
+                WCH CH32F2 Series Device Support, Drivers and Examples
+   * Component: DBGMCU Version: 1.0.0
+   * Component: FLASH Version: 1.0.0
+   * Component: Framework Version: 1.0.0
+   * Component: GPIO Version: 1.0.0
+   * Component: RCC Version: 1.0.0
+   * Component: TIM Version: 1.0.0
+
+<h2>Collection of Component include folders:</h2>
+  ./RTE/CH32F2xx/CH32F208RB
+  ./RTE/_CH32F208RB
+  C:/Users/thipo/AppData/Local/Arm/Packs/ARM/CMSIS/6.3.0/CMSIS/Core/Include
+  C:/Users/thipo/AppData/Local/Arm/Packs/Keil/WCH32F2xx_DFP/1.0.3/Device/Include
+  C:/Users/thipo/AppData/Local/Arm/Packs/Keil/WCH32F2xx_DFP/1.0.3/Device/StdPeriph_Driver/inc
+
+<h2>Collection of Component Files used:</h2>
+
+   * Component: ARM::CMSIS:CORE@6.2.0
+
+   * Component: Keil::CH32F2xx:StdPeriph Drivers:DBGMCU@1.0.0
+      Include file:  Device/StdPeriph_Driver/inc/ch32f20x_dbgmcu.h
+      Source file:   Device/StdPeriph_Driver/src/ch32f20x_dbgmcu.c
+
+   * Component: Keil::CH32F2xx:StdPeriph Drivers:FLASH@1.0.0
+      Include file:  Device/StdPeriph_Driver/inc/ch32f20x_flash.h
+      Source file:   Device/StdPeriph_Driver/src/ch32f20x_flash.c
+
+   * Component: Keil::CH32F2xx:StdPeriph Drivers:Framework@1.0.0
+      Include file:  Device/StdPeriph_Driver/inc/ch32f20x_misc.h
+      Include file:  Device/StdPeriph_Driver/templates/ch32f20x_it.h
+      Source file:   Device/StdPeriph_Driver/templates/ch32f20x_it.c
+      Include file:  Device/StdPeriph_Driver/templates/ch32f20x_conf.h
+      Source file:   Device/StdPeriph_Driver/src/ch32f20x_misc.c
+
+   * Component: Keil::CH32F2xx:StdPeriph Drivers:GPIO@1.0.0
+      Include file:  Device/StdPeriph_Driver/inc/ch32f20x_gpio.h
+      Source file:   Device/StdPeriph_Driver/src/ch32f20x_gpio.c
+
+   * Component: Keil::CH32F2xx:StdPeriph Drivers:RCC@1.0.0
+      Include file:  Device/StdPeriph_Driver/inc/ch32f20x_rcc.h
+      Source file:   Device/StdPeriph_Driver/src/ch32f20x_rcc.c
+
+   * Component: Keil::CH32F2xx:StdPeriph Drivers:TIM@1.0.0
+      Include file:  Device/StdPeriph_Driver/inc/ch32f20x_tim.h
+      Source file:   Device/StdPeriph_Driver/src/ch32f20x_tim.c
+Build Time Elapsed:  00:00:01
+</pre>
+</body>
+</html>
