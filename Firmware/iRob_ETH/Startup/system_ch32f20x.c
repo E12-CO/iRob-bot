@@ -75,6 +75,11 @@ uint32_t SystemCoreClock         = HSI_VALUE;                    /* System Clock
 
 __I uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
 
+#define IVT_FLASH_START		0x08000000
+#define IVT_FLASH_SIZE		0x0120
+
+uint32_t __attribute__((section(".bss.NoInit"))) vInterruptVectorTablePtr[IVT_FLASH_SIZE/4];
+
 /* system_private_function_proto_types */               
 static void SetSysClock( void );
 
@@ -138,7 +143,13 @@ void SystemInit( void )
 #endif
 
     SetSysClock();
-
+	
+	// Copy Interrupt vector table to SRAM for fast lookup by CPU
+	for(uint16_t i=0; i < IVT_FLASH_SIZE/4; i++){
+		vInterruptVectorTablePtr[i] = 
+			*(uint32_t *)(IVT_FLASH_START + (i << 2));
+	}
+	
 #ifdef VECT_TAB_SRAM
     SCB->VTOR = SRAM_BASE | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM. */
 #else

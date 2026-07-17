@@ -33,8 +33,8 @@
           <SLE66CMisc></SLE66CMisc>
           <SLE66AMisc></SLE66AMisc>
           <SLE66LinkerMisc></SLE66LinkerMisc>
-          <SFDFile>$$Device:CH32F208RB$SVD\CH32F203xx.svd</SFDFile>
-          <bCustSvd>0</bCustSvd>
+          <SFDFile>C:\Users\thipo\OneDrive\Documents\DevTLHX\Projects\iRob-bot\Firmware\iRob_ETH\MDK\CH32F208xx.SFR</SFDFile>
+          <bCustSvd>1</bCustSvd>
           <UseEnv>0</UseEnv>
           <BinPath></BinPath>
           <IncludePath></IncludePath>
@@ -134,11 +134,11 @@
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
             <Capability>1</Capability>
-            <DriverSelection>-1</DriverSelection>
+            <DriverSelection>4096</DriverSelection>
           </Flash1>
           <bUseTDR>1</bUseTDR>
           <Flash2>BIN\UL2CM3.DLL</Flash2>
-          <Flash3></Flash3>
+          <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
           <pFcarmGrp></pFcarmGrp>
@@ -362,7 +362,7 @@
             </VariousControls>
           </Aads>
           <LDads>
-            <umfTarg>1</umfTarg>
+            <umfTarg>0</umfTarg>
             <Ropi>0</Ropi>
             <Rwpi>0</Rwpi>
             <noStLib>0</noStLib>
@@ -400,14 +400,14 @@
               <FilePath>..\App\Inc\app_tcpServer.h</FilePath>
             </File>
             <File>
-              <FileName>app_msgtype.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\App\Inc\app_msgtype.h</FilePath>
-            </File>
-            <File>
               <FileName>app_msgtype.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\App\Src\app_msgtype.c</FilePath>
+            </File>
+            <File>
+              <FileName>app_msgtype.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\App\Inc\app_msgtype.h</FilePath>
             </File>
             <File>
               <FileName>app_controlLoop.c</FileName>
@@ -450,19 +450,24 @@
               <FilePath>..\Drv\Src\systick.c</FilePath>
             </File>
             <File>
-              <FileName>tim5.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Drv\Src\tim5.c</FilePath>
-            </File>
-            <File>
               <FileName>tim2.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Drv\Src\tim2.c</FilePath>
             </File>
             <File>
+              <FileName>tim4.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drv\Src\tim4.c</FilePath>
+            </File>
+            <File>
               <FileName>eth_driver_D8W.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Lib\Src\eth_driver_D8W.c</FilePath>
+            </File>
+            <File>
+              <FileName>tim4.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Drv\Inc\tim4.h</FilePath>
             </File>
           </Files>
         </Group>

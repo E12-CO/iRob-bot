@@ -24,10 +24,10 @@ void vGpio_initPins(void){
 	GPIO_Init(GPIOA, &tGPIOAinit);
 	
 	// Initialize GPIO B - Output
-	tGPIOBinit.GPIO_Pin		= GPIO_PB3_DRVEN_R;
-	tGPIOBinit.GPIO_Mode	= GPIO_Mode_Out_PP;
-	tGPIOBinit.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GPIOB, &tGPIOBinit);
+//	tGPIOBinit.GPIO_Pin		= GPIO_PB3_DRVEN_R;
+//	tGPIOBinit.GPIO_Mode	= GPIO_Mode_Out_PP;
+//	tGPIOBinit.GPIO_Speed = GPIO_Speed_50MHz;
+//	GPIO_Init(GPIOB, &tGPIOBinit);
 	
 	// Initialize GPIO B - Input pullup
 	tGPIOBinit.GPIO_Pin		= 
@@ -66,6 +66,6 @@ void vGpio_initPins(void){
 	GPIO_Init(GPIOD, &tGPIODinit);
 }
 
-uint8_t vGpio_readSlaveConfigPins(void){
+uint8_t vGpio_readIPConfigPins(void){
 	return 15 - (uint8_t)((GPIO_ReadInputData(GPIOB) >> 12) & 0x0F);
 }

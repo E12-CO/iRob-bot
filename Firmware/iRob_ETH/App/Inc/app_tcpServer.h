@@ -12,10 +12,12 @@
 #endif
 
 extern uint8_t u8SocketRecvBuf[RECE_BUF_LEN];
+extern uint8_t u8SocketSendBuf[255];
 
 void vAppTcp_serverInit(uint8_t u8IpNum);
 uint8_t vAppTcp_createRosListenSocket(void);
 uint8_t u8AppTcp_isRosClientConnected(void);
+uint8_t u8AppTcp_isThereDataToRead(void);
 void vAppTcp_handleIpInterrupt(void);
 
 #endif

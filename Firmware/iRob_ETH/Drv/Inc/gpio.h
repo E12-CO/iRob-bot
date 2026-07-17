@@ -37,6 +37,6 @@ void vGpio_initPins(void);
 
 
 void vGpio_initPins(void);
-uint8_t vGpio_readSlaveConfigPins(void);
+uint8_t vGpio_readIPConfigPins(void);
 
 #endif

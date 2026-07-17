@@ -4,11 +4,12 @@
 
 #include "systick.h"
 #include "gpio.h"
-#include "tim5.h"
 #include "tim2.h"
+#include "tim4.h"
 
 #include "app_tcpServer.h"
 #include "app_msgtype.h"
+#include "app_controlLoop.h"
 
 int main(void){
 	__disable_irq();
@@ -23,11 +24,21 @@ int main(void){
 	// Initialize GPIO
 	vGpio_initPins();
 	// Initialize TIM2 control loop timer
-	//vTim2_initLoopTimer();
+	vTim2_initLoopTimer();
+	// Initialize TIM4 encoder counter timer 
+	vTim4_initEncoder();
+	// Initialize control loop
+	vAppControl_init();
 	// Initialize IP stack with the IP read from the Rotary Switch
-	vAppTcp_serverInit(vGpio_readSlaveConfigPins());
+	vAppTcp_serverInit(vGpio_readIPConfigPins());
 	// Initialize Command parser
-	u8AppMsg_init(u8SocketRecvBuf);
+	u8AppMsg_init();
+	
+	// Setup PB3 as SWO trace pin
+	
+	DBGMCU->CFGR |= 
+		(1 << 5) | 		// TRACE_IOEN
+		(0 << 6) ;		// TRACE_MODE -> Async UART type
 	
 	__enable_irq();
 	
@@ -41,6 +52,15 @@ int main(void){
 		if(WCHNET_QueryGlobalInt()){
             vAppTcp_handleIpInterrupt();
         }
+		
+		// Process input data
+		if(
+			u8AppTcp_isRosClientConnected() &&
+			u8AppTcp_isThereDataToRead()
+		){
+			vAppMsg_processInputData();
+		}
+
 	}
 }
 

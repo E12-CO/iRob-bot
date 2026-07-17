@@ -71,7 +71,7 @@ extern "C" {
 
 #define FINE_DHCP_PERIOD              8     /* Fine DHCP period, the default value is 8, the unit is 250ms */
 
-#define CFG0_TCP_SEND_COPY            1     /* TCP send buffer copy, 1: copy, 0: not copy */
+#define CFG0_TCP_SEND_COPY            0     /* TCP send buffer copy, 1: copy, 0: not copy */
 
 #define CFG0_TCP_RECV_COPY            1     /* TCP receive replication optimization, internal debugging use */
 

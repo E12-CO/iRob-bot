@@ -10,14 +10,22 @@ void vTim2_initLoopTimer(void){
 	tTim2InitStruct.TIM_Prescaler 	= SYSCLK_FREQ_120MHz_HSE / LOOP_BASE_CLK;// Divide 120MHz by 10k to get the value for 10kHz clock
 	tTim2InitStruct.TIM_Period		= 0;
 	tTim2InitStruct.TIM_CounterMode	= TIM_CounterMode_Up;
-	TIM_TimeBaseInit(TIM5, &tTim2InitStruct);
+	TIM_TimeBaseInit(TIM2, &tTim2InitStruct);
 	
-	// Enabling the TIM5 interrupt 
+	// Enabling the TIM2 interrupt 
 	TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);
 	
-	TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+	TIM_ClearITPendingBit(
+		TIM2, 
+		TIM_IT_Update 	|
+		TIM_FLAG_CC1	|
+		TIM_FLAG_CC2	|
+		TIM_FLAG_CC3	|
+		TIM_FLAG_CC4
+	);
 	NVIC_ClearPendingIRQ(TIM2_IRQn);
 	NVIC_SetPriority(TIM2_IRQn, 0);
+	NVIC_EnableIRQ(TIM2_IRQn);
 }
 
 void vTim2_stopLoopTimer(void){

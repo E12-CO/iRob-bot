@@ -5,11 +5,12 @@ uint8_t u8DeviceIpAddr[4] = {192, 168, 1, 0};                       //IP address
 uint8_t u8GateWayIpAddr[4] = {192, 168, 1, 1};                      //Gateway IP address
 uint8_t u8SubnetMask[4] = {255, 255, 255, 0};                      //subnet mask
 
-uint8_t u8SocketIdForListen;            //Socket for Listening
-uint8_t u8SocketRecvBuf[RECE_BUF_LEN];	//socket receive buffer
+uint8_t u8SocketIdForListen;            // Socket for Listening
+uint8_t u8SocketRecvBuf[RECE_BUF_LEN];	// Socket receive buffer
+uint8_t u8SocketSendBuf[255];			// Socket send buffer
 uint32_t u32TcpRecvLen;
 uint8_t u8IsRosClientConnected = 0;
-
+uint8_t u8HasDataToRead = 0;
 
 // Sockets
 SOCK_INF	tRosSocketInfo;
@@ -45,6 +46,7 @@ uint8_t vAppTcp_createRosListenSocket(void){
 	// Initialize the socket information for ROS comm TCP port
     tRosSocketInfo.SourPort = ROS_TCP_PORT;
     tRosSocketInfo.ProtoType = PROTO_TYPE_TCP;
+	tRosSocketInfo.AppCallBack	= 0;
     if(
 		WCHNET_SocketCreat(&u8SocketIdForListen, &tRosSocketInfo) != 
 		WCHNET_ERR_SUCCESS
@@ -64,18 +66,33 @@ uint8_t u8AppTcp_isRosClientConnected(void){
 	return u8IsRosClientConnected;
 }
 
+uint8_t u8AppTcp_isThereDataToRead(void){
+	if(u8HasDataToRead == 0)
+		return 0;
+	
+	u8HasDataToRead = 0;
+	return 1;
+}
+
 void vAppTcp_handleSocketInterrupt(
 	uint8_t u8SocketId,
 	uint8_t u8SocketStatus){
 	
 	// Recived data packet, run the callback function
     if (u8SocketStatus & SINT_STAT_RECV){
-		if(WCHNET_SocketRecvLen(u8SocketId, NULL) > 0){
+		if( u32TcpRecvLen = WCHNET_SocketRecvLen(u8SocketId, NULL),
+			u32TcpRecvLen > 0){
 			WCHNET_SocketRecv(
 				u8SocketId,
 				NULL,
 				&u32TcpRecvLen
 			);
+			u8HasDataToRead = 1;
+			// Update the pointer to point it back at the beginning 
+			WCHNET_ModifyRecvBuf(
+				u8SocketId, 
+				(uint32_t)&u8SocketRecvBuf,// Pass the Address, not pointer
+				RECE_BUF_LEN);
 		}
     }
 	
