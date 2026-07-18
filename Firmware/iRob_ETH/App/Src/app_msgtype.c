@@ -103,7 +103,7 @@ void vAppMsg_processInputData(void){
 		u32TxLength = tServerCmdPtr->u8DataLength + 4; // Header + Cmd + Length + Data
 		WCHNET_SocketSend(
 			1, 
-			(uint8_t *)&tServerCmdPtr,
+			(uint8_t *)&tServerCmdPtr->u8RbcHeader[0],
 			&u32TxLength
 			);
 	}
