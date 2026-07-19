@@ -38,6 +38,14 @@ void vAppTcp_serverInit(uint8_t u8IpNum){
 		u8GateWayIpAddr, 
 		u8SubnetMask, 
 		u8DeviceMACAddr);
+	
+	// Enable keep alive
+	struct _KEEP_CFG cfg;
+
+	cfg.KLIdle = 20000;
+	cfg.KLIntvl = 15000;
+	cfg.KLCount = 9;
+	WCHNET_ConfigKeepLive(&cfg);
 }
 
 // Setup the TCP listening socket for incoming ROS communication
@@ -101,6 +109,9 @@ void vAppTcp_handleSocketInterrupt(
 		// Only register a TCP socket that is for data exchange
 		if(u8SocketId == 1){
 			u8IsRosClientConnected = 1;
+			
+			WCHNET_SocketSetKeepLive(u8SocketId, ENABLE);
+			
 			WCHNET_ModifyRecvBuf(
 				u8SocketId, 
 				(uint32_t)&u8SocketRecvBuf,// Pass the Address, not pointer
