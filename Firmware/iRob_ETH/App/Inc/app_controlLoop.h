@@ -29,8 +29,18 @@ typedef struct{
 	uint32_t u32EncoderCPR;
 	float	 f32GearRatio;
 	
-	float f32EncoderCountDiff;
+	uint16_t u16CurrentEncCount;
+	uint16_t u16PrevEncCount;
+
+	float f32EncoderRPM;
 }tEncoderVar;
+
+typedef struct{
+	float f32Input[3];
+	float f32Output[3];
+	float f32CoeffA[3];
+	float f32CoeffB[2];
+}tIIRFilter;
 
 typedef struct{
 	union{
