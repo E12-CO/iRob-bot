@@ -265,6 +265,7 @@ void WCHNET_PhyPNProcess(void)
     uint32_t PhyVal;
 
     phyLinkTime = LocalTime;
+	// Switch Diff pair polarity if the CRC error was at least 3 times 
     if(CRCErrPktCnt >= 3)
     {
         PhyVal = ReadPHYReg(PHY_MDIX);
@@ -305,10 +306,16 @@ void WCHNET_HandlePhyNegotiation(void)
             if( LocalTime - phyLinkTime >= PHY_LINK_TASK_PERIOD )  /* 50ms cycle timing call */
             {
                 phyLinkTime = LocalTime;
-                WCHNET_LinkProcess( );
+                //WCHNET_LinkProcess( );
+				phyPN = ReadPHYReg(PHY_MDIX);
+				phyPN &= ~0x0c;// Only keep the P/N polarity configuration
+				// And keep the T/R selection to automatic
+				WritePHYReg(PHY_MDIX, phyPN);
             }
         }
         else{
+			// Start the diff pair polarity detection when we first link-up
+			// Stop the detection on the successful Ethernet RX 
             if(PhyPolarityDetect)
             {
                 if( LocalTime - phyLinkTime >= 2 * PHY_LINK_TASK_PERIOD )
@@ -691,7 +698,11 @@ void WCHNET_ETHIsr( void )
     }
     if(eth_irq_flag&RB_ETH_EIR_RXERIF)                              //receive error
     {
-        if(PhyPolarityDetect) CRCErrPktCnt++;
+		// Count the CRC error during the PHY polarity detection
+		// If the CRC error hits three or more times
+		// then we will flip the Diff pair
+        if(PhyPolarityDetect) 
+			CRCErrPktCnt++;	
         R8_ETH_EIR = RB_ETH_EIR_RXERIF;
     }
 }
