@@ -460,14 +460,14 @@
               <FilePath>..\Drv\Src\tim4.c</FilePath>
             </File>
             <File>
-              <FileName>eth_driver_D8W.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Lib\Src\eth_driver_D8W.c</FilePath>
-            </File>
-            <File>
               <FileName>tim4.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Drv\Inc\tim4.h</FilePath>
+            </File>
+            <File>
+              <FileName>eth_driver_D8W.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Lib\Src\eth_driver_D8W.c</FilePath>
             </File>
           </Files>
         </Group>
