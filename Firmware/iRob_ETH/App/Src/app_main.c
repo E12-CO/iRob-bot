@@ -35,10 +35,10 @@ int main(void){
 	u8AppMsg_init();
 	
 	// Setup PB3 as SWO trace pin
-	
-	DBGMCU->CFGR |= 
-		(1 << 5) | 		// TRACE_IOEN
-		(0 << 6) ;		// TRACE_MODE -> Async UART type
+	// Only enable this when you want to debug!
+//	DBGMCU->CFGR |= 
+//		(1 << 5) | 		// TRACE_IOEN
+//		(0 << 6) ;		// TRACE_MODE -> Async UART type
 	
 	__enable_irq();
 	
