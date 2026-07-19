@@ -98,7 +98,8 @@ class iRobETH:
 def main():
     print('iRob ETH communication test code')
     irob_if = iRobETH('192.168.1.16')
-    irob_if.irobReadParamStatus()
+    while(True):
+        irob_if.irobReadParamStatus()
 
 if __name__ == '__main__':
     main()
