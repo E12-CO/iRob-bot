@@ -8,7 +8,7 @@ void vTim2_initLoopTimer(void){
 
 	// Set up the prescaler and leave the ARR out for now
 	tTim2InitStruct.TIM_Prescaler 	= SYSCLK_FREQ_120MHz_HSE / LOOP_BASE_CLK;// Divide 120MHz by 10k to get the value for 10kHz clock
-	tTim2InitStruct.TIM_Period		= 0;
+	tTim2InitStruct.TIM_Period		= LOOP_RATE_2KHZ;
 	tTim2InitStruct.TIM_CounterMode	= TIM_CounterMode_Up;
 	TIM_TimeBaseInit(TIM2, &tTim2InitStruct);
 	
@@ -40,8 +40,4 @@ void vTim2_startLoopTimer(void){
 	TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
 	NVIC_ClearPendingIRQ(TIM2_IRQn);
 	TIM_Cmd(TIM2, ENABLE);
-}
-
-void vTim2_setLoopRate(uint16_t u16LoopRateARR){
-	TIM_SetAutoreload(TIM2, u16LoopRateARR);
 }

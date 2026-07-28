@@ -18,6 +18,8 @@ typedef struct{
 	float f32Intg;
 	float f32Diff;
 	float f32Command;
+	
+	uint32_t u32ControlLoopCanRun;
 }tCtrlPIDVar;
 
 typedef struct{
@@ -30,17 +32,17 @@ typedef struct{
 	float	 f32GearRatio;
 	
 	uint16_t u16CurrentEncCount;
-	uint16_t u16PrevEncCount;
 
 	float f32EncoderRPM;
 }tEncoderVar;
 
 typedef struct{
-	float f32Input[3];
-	float f32Output[3];
-	float f32CoeffA[3];
-	float f32CoeffB[2];
-}tIIRFilter;
+	float f32Position;
+	float f32Velocity;
+	float f32PositionDiff;
+	float f32Kp;
+	float f32Ki;
+}tEncoderEstimator;
 
 typedef struct{
 	union{

@@ -4,19 +4,22 @@ volatile __attribute__((section("ctrl_var"))) tCtrlPIDVar 		tPIDSpeedCtrl;
 volatile __attribute__((section("ctrl_var"))) tCtrlLimit		tLimitSpeedCtrl;
 volatile __attribute__((section("ctrl_var"))) tEncoderVar		tEncoderParam;
 volatile __attribute__((section("ctrl_var"))) tControlStatus	tCtrlLoopStatus;
-volatile __attribute__((section("ctrl_var"))) tIIRFilter		tEncoderFilter;
+volatile __attribute__((section("ctrl_var"))) tEncoderEstimator tEncoderFilter;
 
-const float f32LoopRateDtTable[6] = {
-	0.02f,	// 50Hz  - 20ms
-	0.01f,	// 100Hz - 10ms
-	0.004,	// 250Hz - 4ms
-	0.002,  // 500Hz - 2ms
-	0.001,  // 1kHz	 - 1ms
-	0.0005, // 2kHz	 - 0.5ms
+
+const uint8_t u8LoopTickTable[6] = {
+	40,		// 50Hz  - 20ms - 40 ticks
+	20,		// 100Hz - 10ms - 20 ticks
+	8,		// 250Hz - 4ms - 8 ticks
+	4,  	// 500Hz - 2ms - 4 ticks
+	2,  	// 1kHz	 - 1ms - 2 ticks
+	0, 		// 2kHz	 - 0.5ms - 0 ticks
 };
 
+#define MAIN_LOOP_DT	0.0005f	// 500us
+
 uint8_t u8ControlLoopRateNow = eLOOP_RATE_50HZ;
-volatile __attribute__((section("ctrl_var"))) float f32LoopRateDt;
+volatile __attribute__((section("ctrl_var"))) uint32_t u32LoopTick;
 	
 void __attribute__((section("ctrl_isr"))) TIM2_IRQHandler(void){
 
@@ -31,94 +34,114 @@ void __attribute__((section("ctrl_isr"))) TIM2_IRQHandler(void){
 		tCtrlLoopStatus.regBit.bControlErrorSP = 0;
 	}
 	
-	// Calculate the speed
+	// Get the current encoder position
 	tEncoderParam.u16CurrentEncCount = GET_ENC_CNT;
-	tEncoderFilter.f32Input[0] = 
-		((tEncoderParam.u16CurrentEncCount -
-		 tEncoderParam.u16PrevEncCount) 
-		* 60.0f) / 
-		(f32LoopRateDt * tEncoderParam.u32EncoderCPR);
-	tEncoderParam.u16CurrentEncCount = tEncoderParam.u16PrevEncCount;
+
+	// Prediction step, predict the encoder position by velocity
+	tEncoderFilter.f32Position += tEncoderFilter.f32Velocity * MAIN_LOOP_DT;
+	// roll over and roll under handling
+	// Because our TIM encoder counter count from 0 to 63365 and back to 0
+	if(tEncoderFilter.f32Position > 65536.0f)
+		tEncoderFilter.f32Position -= 65536.0f;
+	if(tEncoderFilter.f32Position < 0.0f)
+		tEncoderFilter.f32Position += 65536.0f;
 	
-	tEncoderFilter.f32Output[0] = 
-		(tEncoderFilter.f32Input[0] * tEncoderFilter.f32CoeffA[0]) + // x[n]
-		(tEncoderFilter.f32Input[1] * tEncoderFilter.f32CoeffA[1]) + // x[n-1]
-		(tEncoderFilter.f32Input[2] * tEncoderFilter.f32CoeffA[2]) + // x[n-2]
-		(tEncoderFilter.f32Output[1] * tEncoderFilter.f32CoeffB[0]) + // y[n-1]
-		(tEncoderFilter.f32Output[2] * tEncoderFilter.f32CoeffB[1]) ; // y[n-2]
+	// Error comparator, compare the predicted position with the actual position
+	tEncoderFilter.f32PositionDiff = 
+			tEncoderParam.u16CurrentEncCount - 
+			tEncoderFilter.f32Position;
 	
-	tEncoderParam.f32EncoderRPM = tEncoderFilter.f32Output[0];
+	// Handling the encoder diff roll over
+	if(tEncoderFilter.f32PositionDiff > 32767.0f)// rotation backward from 0 back to 65535 
+		tEncoderFilter.f32PositionDiff -= 65536.0f;
+	if(tEncoderFilter.f32PositionDiff < -32768.0f)// rotation forward from 65535 to 0
+		tEncoderFilter.f32PositionDiff += 65536.0f;
 	
-	// Z^-1
-	tEncoderFilter.f32Input[2] = tEncoderFilter.f32Input[1];
-	tEncoderFilter.f32Input[1] = tEncoderFilter.f32Input[0];
-	tEncoderFilter.f32Output[2] = tEncoderFilter.f32Output[1];
-	tEncoderFilter.f32Output[1] = tEncoderFilter.f32Output[0];
+	// Update step, update the final encoder position value as well as velocity
+	tEncoderFilter.f32Position += 
+		tEncoderFilter.f32Kp			*
+		tEncoderFilter.f32PositionDiff;
+	tEncoderFilter.f32Velocity += 
+		tEncoderFilter.f32Ki			*
+		tEncoderFilter.f32PositionDiff 	* 
+		MAIN_LOOP_DT;
 	
-	// Calculate the error
-	tPIDSpeedCtrl.f32Err = tPIDSpeedCtrl.f32Setpoint - tEncoderFilter.f32Output[0];
+	if(tPIDSpeedCtrl.u32ControlLoopCanRun > 0)
+		tPIDSpeedCtrl.u32ControlLoopCanRun--;
 	
-	// Integrate the error
-	tPIDSpeedCtrl.f32Intg += tPIDSpeedCtrl.f32Err * tPIDSpeedCtrl.f32Ki;
-	
-	// Differentiate the error
-	tPIDSpeedCtrl.f32Diff = 
-		(tPIDSpeedCtrl.f32Err - tPIDSpeedCtrl.f32PrevErr) *
-		tPIDSpeedCtrl.f32Kd;
-	
-	// Calculate the actuator control command
-	// P term + I term + D term + Feedforward term
-	tPIDSpeedCtrl.f32Command = 
-		(tPIDSpeedCtrl.f32Err * tPIDSpeedCtrl.f32Kp) +
-		tPIDSpeedCtrl.f32Intg +
-		tPIDSpeedCtrl.f32Diff +
-		(tPIDSpeedCtrl.f32Kff * tPIDSpeedCtrl.f32Setpoint);
-	
-	// Apply the control limit and dead band
-	
-	// Limit (Saturation)
-	if(tPIDSpeedCtrl.f32Command > 4095){
-		tPIDSpeedCtrl.f32Command = 4095;
-		tCtrlLoopStatus.regBit.bControlSaturate = 1;
-	}else if(tPIDSpeedCtrl.f32Command < -4095){
-		tPIDSpeedCtrl.f32Command = -4095;
-		tCtrlLoopStatus.regBit.bControlSaturate = 1;
-	}else{
-		tCtrlLoopStatus.regBit.bControlSaturate = 0;
-	}
-	
-	// Deadband
 	if(
-		(tPIDSpeedCtrl.f32Command > -10) &&
-		(tPIDSpeedCtrl.f32Command < 10)
-	)
-		tPIDSpeedCtrl.f32Command = 0;
-	
-	
-	tPIDSpeedCtrl.f32PrevErr = tPIDSpeedCtrl.f32Err;
+		(tCtrlLoopStatus.regBit.bControlRunning == 1) 	&& 
+		(tPIDSpeedCtrl.u32ControlLoopCanRun == 0)		
+	){
+		// Update the tick according to the loop rate
+		tPIDSpeedCtrl.u32ControlLoopCanRun = u32LoopTick;
+		
+		// Calculate the error
+		tPIDSpeedCtrl.f32Err = tPIDSpeedCtrl.f32Setpoint - tEncoderFilter.f32Velocity;
+		
+		// Integrate the error
+		tPIDSpeedCtrl.f32Intg += tPIDSpeedCtrl.f32Err * tPIDSpeedCtrl.f32Ki;
+		
+		// Differentiate the error
+		tPIDSpeedCtrl.f32Diff = 
+			(tPIDSpeedCtrl.f32Err - tPIDSpeedCtrl.f32PrevErr) *
+			tPIDSpeedCtrl.f32Kd;
+		
+		// Calculate the actuator control command
+		// P term + I term + D term + Feedforward term
+		tPIDSpeedCtrl.f32Command = 
+			(tPIDSpeedCtrl.f32Err * tPIDSpeedCtrl.f32Kp) +
+			tPIDSpeedCtrl.f32Intg +
+			tPIDSpeedCtrl.f32Diff +
+			(tPIDSpeedCtrl.f32Kff * tPIDSpeedCtrl.f32Setpoint);
+		
+		// Apply the control limit and dead band
+		
+		// Limit (Saturation)
+		if(tPIDSpeedCtrl.f32Command > 4095){
+			tPIDSpeedCtrl.f32Command = 4095;
+			tCtrlLoopStatus.regBit.bControlSaturate = 1;
+		}else if(tPIDSpeedCtrl.f32Command < -4095){
+			tPIDSpeedCtrl.f32Command = -4095;
+			tCtrlLoopStatus.regBit.bControlSaturate = 1;
+		}else{
+			tCtrlLoopStatus.regBit.bControlSaturate = 0;
+		}
+		
+		// Deadband
+		if(
+			(tPIDSpeedCtrl.f32Command > -10) &&
+			(tPIDSpeedCtrl.f32Command < 10)
+		)
+			tPIDSpeedCtrl.f32Command = 0;
+		
+		
+		tPIDSpeedCtrl.f32PrevErr = tPIDSpeedCtrl.f32Err;
+	}else{// If control loop is not running
+		tPIDSpeedCtrl.f32Setpoint 	= 0.0f;
+		tPIDSpeedCtrl.f32Intg		= 0.0f;
+		tPIDSpeedCtrl.f32Diff		= 0.0f;
+		
+	}
 	
 	TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
 }
 
 void vAppControl_init(void){
-	vTim2_setLoopRate(LOOP_RATE_50HZ);
+	vTim2_startLoopTimer();
 	vAppControl_setControlRun(0);
 	
-	// Setup the IIR filter coefficients
-	tEncoderFilter.f32CoeffA[0] = 0.1f;
-	tEncoderFilter.f32CoeffA[1] = 0.0f;
-	tEncoderFilter.f32CoeffA[2] = 0.0f;
-	tEncoderFilter.f32CoeffB[0] = 0.5f;
-	tEncoderFilter.f32CoeffB[1] = 0.0f;
+	// Setup the initial value for the velocity estimator
+	tEncoderFilter.f32Position = 0.0f;
+	tEncoderFilter.f32Velocity = 0.0f;
+	tEncoderFilter.f32PositionDiff = 0.0f;
+	
+	tEncoderFilter.f32Kp = 0.25f;
+	tEncoderFilter.f32Ki = 2000.0f;
 }
 
 void vAppControl_setControlRun(uint8_t u8OnOff){
 	tCtrlLoopStatus.regBit.bControlRunning = u8OnOff ? 1 : 0;
-	if(tCtrlLoopStatus.regBit.bControlRunning == 0){
-		vTim2_stopLoopTimer();
-	}else{
-		vTim2_startLoopTimer();
-	}
 }
 
 uint8_t u8AppControl_getControlRunStatus(void){
@@ -140,15 +163,7 @@ uint8_t u8AppControl_setControlRate(uint8_t u8LoopRate){
 		case eLOOP_RATE_2KHZ:
 		{
 			u8ControlLoopRateNow = u8LoopRate;
-			f32LoopRateDt = f32LoopRateDtTable[u8ControlLoopRateNow];
-			vTim2_setLoopRate(
-				(u8LoopRate == eLOOP_RATE_50HZ) 	? LOOP_RATE_50HZ :
-				(u8LoopRate == eLOOP_RATE_100HZ) 	? LOOP_RATE_100HZ :
-				(u8LoopRate == eLOOP_RATE_250HZ) 	? LOOP_RATE_250HZ :
-				(u8LoopRate == eLOOP_RATE_500HZ) 	? LOOP_RATE_500HZ :
-				(u8LoopRate == eLOOP_RATE_1KHZ) 	? LOOP_RATE_1KHZ :
-				(u8LoopRate == eLOOP_RATE_2KHZ) 	? LOOP_RATE_2KHZ : LOOP_RATE_50HZ
-			);
+			u32LoopTick = u8LoopTickTable[u8ControlLoopRateNow];
 		}
 		
 		default:
