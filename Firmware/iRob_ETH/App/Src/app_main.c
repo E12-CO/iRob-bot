@@ -43,6 +43,9 @@ int main(void){
 	__enable_irq();
 	
 	vAppTcp_createRosListenSocket();
+#ifdef UDP_PORT
+	vAppTcp_createUdpPTPPort();
+#endif
 	
 	while(1){
 		// Run the IP task in the super loop

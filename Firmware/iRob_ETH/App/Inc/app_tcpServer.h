@@ -7,8 +7,11 @@
 
 #define ROS_TCP_PORT	6767
 
+#define UDP_PORT
+
 #ifdef UDP_PORT
-#define SIDE_UDP_PORT	0
+#define PTP_EVENT_PORT    319
+#define PTP_GENERAL_PORT  320
 #endif
 
 extern uint8_t u8SocketRecvBuf[RECE_BUF_LEN];
@@ -16,6 +19,9 @@ extern uint8_t u8SocketSendBuf[255];
 
 void vAppTcp_serverInit(uint8_t u8IpNum);
 uint8_t vAppTcp_createRosListenSocket(void);
+#ifdef UDP_PORT
+uint8_t vAppTcp_createUdpPTPPort(void);
+#endif
 uint8_t u8AppTcp_isRosClientConnected(void);
 uint8_t u8AppTcp_isThereDataToRead(void);
 void vAppTcp_handleIpInterrupt(void);

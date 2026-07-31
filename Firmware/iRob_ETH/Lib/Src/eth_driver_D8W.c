@@ -508,7 +508,10 @@ void ETH_Configuration( uint8_t *macAddr )
     R8_ETH_ECON1 &= ~(RB_ETH_ECON1_TXRST|RB_ETH_ECON1_RXRST);
 
     //Filter mode, received packet type
-    R8_ETH_ERXFCON = 0;
+    R8_ETH_ERXFCON = (1 << 1) | (1 << 2) | (1 << 7) ;	// Receive multicast packet
+	// reset MAC hash table
+	R32_ETH_HTL		= 0xFFFFFFFF;
+	R32_ETH_HTH 	= 0xFFFFFFFF;
     R8_ETH_MAADRL1 = macAddr[5];                                        // MAC assignment
     R8_ETH_MAADRL2 = macAddr[4];
     R8_ETH_MAADRL3 = macAddr[3];
