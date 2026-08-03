@@ -2,6 +2,7 @@
 #define APP_CONTROLLOOP_H
 
 #include "tim2.h"
+#include "tim3.h"
 #include "tim4.h"
 #include "core_cm3.h" 
 
@@ -19,6 +20,8 @@ typedef struct{
 	float f32Diff;
 	float f32Command;
 	
+	int16_t i16Command;
+	
 	uint32_t u32ControlLoopCanRun;
 }tCtrlPIDVar;
 
@@ -32,7 +35,7 @@ typedef struct{
 	float	 f32GearRatio;
 	
 	uint16_t u16CurrentEncCount;
-
+	uint16_t u16PrevEncCount;
 	float f32EncoderRPM;
 }tEncoderVar;
 

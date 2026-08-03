@@ -5,11 +5,19 @@
 #include "systick.h"
 #include "gpio.h"
 #include "tim2.h"
+#include "tim3.h"
 #include "tim4.h"
 
 #include "app_tcpServer.h"
 #include "app_msgtype.h"
 #include "app_controlLoop.h"
+
+void HardFault_Handler(void){
+
+	while(1){
+		
+	}
+}
 
 int main(void){
 	__disable_irq();
@@ -25,6 +33,9 @@ int main(void){
 	vGpio_initPins();
 	// Initialize TIM2 control loop timer
 	vTim2_initLoopTimer();
+	// Initilize TIM3 PWM timer
+	vTim3_initPWMTimer();
+	vTim3_startPWMTimer();
 	// Initialize TIM4 encoder counter timer 
 	vTim4_initEncoder();
 	// Initialize control loop

@@ -47,9 +47,19 @@ void __attribute__((section("ctrl_isr"))) TIM2_IRQHandler(void){
 		tEncoderFilter.f32Position += 65536.0f;
 	
 	// Error comparator, compare the predicted position with the actual position
-	tEncoderFilter.f32PositionDiff = 
-			tEncoderParam.u16CurrentEncCount - 
-			tEncoderFilter.f32Position;
+	//if(tEncoderParam.u16CurrentEncCount != tEncoderParam.u16PrevEncCount){
+		tEncoderFilter.f32PositionDiff = 
+				tEncoderParam.u16CurrentEncCount - 
+				tEncoderFilter.f32Position;
+	//}
+	tEncoderParam.u16PrevEncCount = tEncoderParam.u16CurrentEncCount;
+	
+	// Quantization
+	if(
+		(tEncoderFilter.f32PositionDiff > -0.01f) &&
+		(tEncoderFilter.f32PositionDiff < 0.01f)
+	)
+		tEncoderFilter.f32PositionDiff = 0.0f;
 	
 	// Handling the encoder diff roll over
 	if(tEncoderFilter.f32PositionDiff > 32767.0f)// rotation backward from 0 back to 65535 
@@ -66,6 +76,18 @@ void __attribute__((section("ctrl_isr"))) TIM2_IRQHandler(void){
 		tEncoderFilter.f32PositionDiff 	* 
 		MAIN_LOOP_DT;
 	
+	// Quantization
+	if(
+		(tEncoderFilter.f32Velocity > -0.01f) &&
+		(tEncoderFilter.f32Velocity < 0.01f)
+	)
+		tEncoderFilter.f32Velocity = 0.0f;
+	
+	// Convert the encoder count/s (CPS) to RPM
+	tEncoderParam.f32EncoderRPM = 
+		(tEncoderFilter.f32Velocity * 60.0f) /
+		(float)tEncoderParam.u32EncoderCPR;
+	
 	if(tPIDSpeedCtrl.u32ControlLoopCanRun > 0)
 		tPIDSpeedCtrl.u32ControlLoopCanRun--;
 	
@@ -77,7 +99,7 @@ void __attribute__((section("ctrl_isr"))) TIM2_IRQHandler(void){
 		tPIDSpeedCtrl.u32ControlLoopCanRun = u32LoopTick;
 		
 		// Calculate the error
-		tPIDSpeedCtrl.f32Err = tPIDSpeedCtrl.f32Setpoint - tEncoderFilter.f32Velocity;
+		tPIDSpeedCtrl.f32Err = tPIDSpeedCtrl.f32Setpoint - tEncoderParam.f32EncoderRPM;
 		
 		// Integrate the error
 		tPIDSpeedCtrl.f32Intg += tPIDSpeedCtrl.f32Err * tPIDSpeedCtrl.f32Ki;
@@ -110,18 +132,32 @@ void __attribute__((section("ctrl_isr"))) TIM2_IRQHandler(void){
 		
 		// Deadband
 		if(
-			(tPIDSpeedCtrl.f32Command > -10) &&
-			(tPIDSpeedCtrl.f32Command < 10)
+			(tPIDSpeedCtrl.f32Command > -10.0) &&
+			(tPIDSpeedCtrl.f32Command < 10.0)
 		)
 			tPIDSpeedCtrl.f32Command = 0;
 		
+		tPIDSpeedCtrl.i16Command = (int16_t)tPIDSpeedCtrl.f32Command;
+		
+		if(tPIDSpeedCtrl.i16Command > 0){
+			SETPWM_1(tPIDSpeedCtrl.i16Command);
+			SETPWM_2(0);
+		}else if(tPIDSpeedCtrl.i16Command < 0){
+			SETPWM_1(0);
+			SETPWM_2(-tPIDSpeedCtrl.i16Command);
+		}else{
+			SETPWM_1(0);
+			SETPWM_2(0);
+		}
+			
 		
 		tPIDSpeedCtrl.f32PrevErr = tPIDSpeedCtrl.f32Err;
 	}else{// If control loop is not running
 		tPIDSpeedCtrl.f32Setpoint 	= 0.0f;
 		tPIDSpeedCtrl.f32Intg		= 0.0f;
 		tPIDSpeedCtrl.f32Diff		= 0.0f;
-		
+		SETPWM_1(0);
+		SETPWM_2(0);
 	}
 	
 	TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
@@ -138,6 +174,9 @@ void vAppControl_init(void){
 	
 	tEncoderFilter.f32Kp = 0.25f;
 	tEncoderFilter.f32Ki = 2000.0f;
+	
+	// Set the default CPR to 1
+	tEncoderParam.u32EncoderCPR = 1;
 }
 
 void vAppControl_setControlRun(uint8_t u8OnOff){
