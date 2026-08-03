@@ -19,8 +19,8 @@ SOCK_INF	tRosSocketInfo;
 const uint8_t u8PtpMulticastIp[4] = {224, 0, 1, 129};
 SOCK_INF	tUDPSocketInfo[2];
 
-uint8_t u8PTPSocketEvent;
-uint8_t u8PTPSocketGeneral;
+uint8_t u8PTPSocketEvent;			// Socket ID for PTP Event
+uint8_t u8PTPSocketGeneral;			// Socket ID for PTP General
 uint8_t u8UDPRecvBuf[10];
 #endif
 
@@ -162,7 +162,7 @@ void vAppTcp_handleSocketInterrupt(
     if (u8SocketStatus & SINT_STAT_RECV){
 		
 		// Handle TCP receiver
-		if(u8SocketId == tRosSocketInfo.SockIndex){
+		if(u8SocketId == 3){
 			if( u32TcpRecvLen = WCHNET_SocketRecvLen(u8SocketId, NULL),
 				u32TcpRecvLen > 0){
 				WCHNET_SocketRecv(
@@ -183,7 +183,7 @@ void vAppTcp_handleSocketInterrupt(
 	// Socket connected
     if (u8SocketStatus & SINT_STAT_CONNECT){
 		// Handle a single TCP connection
-		if(u8SocketId == tRosSocketInfo.SockIndex){
+		if(u8SocketId == 3){
 			u8IsRosClientConnected = 1;
 			
 			WCHNET_SocketSetKeepLive(u8SocketId, ENABLE);
@@ -198,7 +198,7 @@ void vAppTcp_handleSocketInterrupt(
 	
 	// Socket disconnect or timed out
     if (u8SocketStatus & (SINT_STAT_DISCONNECT | SINT_STAT_TIM_OUT)){
-		if(u8SocketId == tRosSocketInfo.SockIndex)
+		if(u8SocketId == 3)
 			u8IsRosClientConnected = 0;
     }
 

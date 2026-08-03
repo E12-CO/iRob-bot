@@ -37,7 +37,7 @@ enum eReadWriteType{
 	eRW_WRITE			= 1 
 };
 
-enum eParamType{
+enum eParamIndex{
 	ePARAM_CTRL_STAT		= 0,// Parameter Status
 	ePARAM_CTRL_KP 			= 1,// Control Kp
 	ePARAM_CTRL_KI 			= 2,// Control Ki
@@ -71,13 +71,30 @@ typedef struct{
 	};
 }tParameterStatus;
 
-enum eControlType{
+enum eControlIndex{
 	eCONTROL_CTRL_STAT		= 0,// Control loop status
 	eCONTROL_CTRL_SETPOINT	= 1,// Control loop setpoint
 	
 	eCONTROL_CTRL_LOOP_RATE = 30,// Control loop rate
 	eCONTROL_CTRL_ON_OFF	= 31,// Control loop On/Off	
 };
+
+enum eDebugIndex{
+	eDEBUG_STAT				= 0,// Debug status
+	eDEBUG_RJ45_VENDOR		= 1,// Debug command to select the RJ45 vendor
+	eDEBUG_SWO_ON_OFF		= 2,// Debug command to enable/disable SWO
+};
+
+typedef struct{
+	union{
+		uint8_t u8DebugStat;
+		struct{
+			uint8_t bRJ45IsWurth 		:1;
+			uint8_t bSWOEnabled			:1;
+			uint8_t bReserved			:6;
+		}regBit;
+	};
+}tDebugingStatus;
 
 uint8_t u8AppMsg_init(void);
 void vAppMsg_processInputData(void);

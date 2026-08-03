@@ -18,9 +18,17 @@ uint8_t u8AppMsg_handleControl(
 	uint8_t *pControlDataPtr, 
 	uint8_t u8ControlLength
 	);
-
+	
+uint8_t u8AppMsg_handleDebug(
+	uint8_t u8DebugIndex, 
+	uint8_t u8DebugReadWrite,
+	uint8_t *pDebugDataPtr, 
+	uint8_t u8DebugLength
+	);
+	
 // Private data
 tParameterStatus 	tParamStatus;
+tDebugingStatus		tDebugStatus;
 
 uint8_t u8ProcessInputReturn = 0;
 uint32_t u32TxLength = 0;
@@ -88,21 +96,38 @@ void vAppMsg_processInputData(void){
 		
 		case eCOMMAND_DEBUG:// Debug type data
 		{
-		
+			u8ProcessInputReturn = 
+				u8AppMsg_handleDebug(
+					tClientCmdPtr->regBit.bIndex,
+					tClientCmdPtr->regBit.bRW,
+					tClientCmdPtr->u8InDataPtr,
+					tClientCmdPtr->u8DataLength
+				);
 		}
 		break;
 		
 		case eCOMMAND_INVALID:
 		default:
-			return;
-	
+		{
+			// Reply with error 
+			tServerCmdPtr->u8Cmd = eCOMMAND_INVALID;
+			tServerCmdPtr->u8DataLength = 0x00;
+		}	
+		break;	
 	}
 	
 	// Setup the transfer to client if it's the read command
 	if(tServerCmdPtr->regBit.bRW == eRW_READ){
 		u32TxLength = tServerCmdPtr->u8DataLength + 4; // Header + Cmd + Length + Data
 		WCHNET_SocketSend(
-			1, 
+			3, 
+			(uint8_t *)&tServerCmdPtr->u8RbcHeader[0],
+			&u32TxLength
+			);
+	}else{
+		u32TxLength = 4; // Header + Cmd + Length
+		WCHNET_SocketSend(
+			3, 
 			(uint8_t *)&tServerCmdPtr->u8RbcHeader[0],
 			&u32TxLength
 			);
@@ -230,10 +255,10 @@ uint8_t u8AppMsg_handleParameter(
 				return 1;
 			
 			if(u8ParamReadWrite == eRW_WRITE){
-				tPIDSpeedCtrl.f32Kp  = *(float *)(pParamDataPtr + 0x00);
 				tPIDSpeedCtrl.f32Ki  = *(float *)(pParamDataPtr + 0x04);
-				tPIDSpeedCtrl.f32Kd  = *(float *)(pParamDataPtr + 0x08);
+				tPIDSpeedCtrl.f32Kp  = *(float *)(pParamDataPtr + 0x00);
 				tPIDSpeedCtrl.f32Kff = *(float *)(pParamDataPtr + 0x0C);
+				tPIDSpeedCtrl.f32Kd  = *(float *)(pParamDataPtr + 0x08);
 				tParamStatus.u8ParamStat |= 0x0F;
 			}else{
 				tServerCmdPtr->u8DataLength = sizeof(float) * 4;
@@ -256,8 +281,8 @@ uint8_t u8AppMsg_handleParameter(
 				return 1;
 			
 			if(u8ParamReadWrite == eRW_WRITE){
-				tLimitSpeedCtrl.f32ControlMin  = *(float *)(pParamDataPtr + 0x00);
 				tLimitSpeedCtrl.f32ControlMax  = *(float *)(pParamDataPtr + 0x04);
+				tLimitSpeedCtrl.f32ControlMin  = *(float *)(pParamDataPtr + 0x00);
 				tParamStatus.u8ParamStat |= (3 << 4);
 			}else{
 				tServerCmdPtr->u8DataLength = sizeof(float) * 2;
@@ -389,5 +414,64 @@ uint8_t u8AppMsg_handleControl(
 			return 1;
 	}
 	
+	return 0;
+}
+	
+uint8_t u8AppMsg_handleDebug(
+	uint8_t u8DebugIndex, 
+	uint8_t u8DebugReadWrite,
+	uint8_t *pDebugDataPtr, 
+	uint8_t u8DebugLength
+	){
+		
+	switch(u8DebugIndex){
+		case eDEBUG_STAT:// Debug status
+		{
+			if(u8DebugReadWrite != eRW_READ)
+				return 1;
+			
+			tServerCmdPtr->u8DataLength = sizeof(uint8_t);
+			tServerCmdPtr->u8InDataPtr[0] = tDebugStatus.u8DebugStat;
+		}
+		break;
+		
+		case eDEBUG_RJ45_VENDOR:// Select RJ45 vendor (Wurth or HanRun)
+		{
+			if(u8DebugLength != sizeof(uint8_t))
+				return 1;
+			
+			if(u8DebugReadWrite == eRW_WRITE){
+				// Set the RJ45 status flag, and schedule to save it's configuration to FLASH
+				tDebugStatus.regBit.bRJ45IsWurth = *pDebugDataPtr ? 1 : 0;
+			}else{
+				tServerCmdPtr->u8DataLength = sizeof(uint8_t);
+				tServerCmdPtr->u8InDataPtr[0] = tDebugStatus.regBit.bRJ45IsWurth;
+			}
+			
+		}
+		break;
+		
+		case eDEBUG_SWO_ON_OFF:// Enable or disable SWO interface
+		{
+			if(u8DebugLength != sizeof(uint8_t))
+				return 1;
+			
+			if(u8DebugReadWrite == eRW_WRITE){
+				tDebugStatus.regBit.bSWOEnabled = *pDebugDataPtr ? 1 : 0;
+				if(tDebugStatus.regBit.bSWOEnabled){
+					DBGMCU->CFGR |= (1 << 5);
+				}else{
+					DBGMCU->CFGR &= ~(1 << 5);
+				}
+				
+			}else{
+				tServerCmdPtr->u8DataLength = sizeof(uint8_t);
+				tServerCmdPtr->u8InDataPtr[0] = tDebugStatus.regBit.bSWOEnabled;
+			}
+		}
+		break;
+	
+	}	
+		
 	return 0;
 }
