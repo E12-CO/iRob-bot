@@ -126,6 +126,7 @@ void vAppMsg_processInputData(void){
 			);
 	}else{
 		u32TxLength = 4; // Header + Cmd + Length
+		tServerCmdPtr->u8DataLength = 0;
 		WCHNET_SocketSend(
 			3, 
 			(uint8_t *)&tServerCmdPtr->u8RbcHeader[0],
