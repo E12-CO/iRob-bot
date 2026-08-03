@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<JScopeProject>
+    <FileVersion major="1" minor="1" />
+    <Project>
+        <Configuration>
+            <JLink>
+                <Options Connection="1" IsRTTSession="0" IsRTTWithTimeStamp="0" IsRTTPlus="0" SamplingPeriod="1000" SerialNo="0" JTAG_IRPre="0" JTAG_DRPre="0" IP="" TargetDevice="CH32F208RB" TargetInterface="SWD" InterfaceSpeed="50000" />
+            </JLink>
+            <ElfFile Name="C:\Users\thipo\OneDrive\Documents\DevTLHX\Projects\iRob-bot\Firmware\iRob_ETH\MDK\Objects\irob_eth_v1.axf" />
+            <Scope>
+                <Options TimeResolutionUs="1000000" />
+            </Scope>
+            <Trigger>
+                <Options Level="0" Symbol="f32Position" On="0" Auto="0" Rise="0" Fall="0" />
+            </Trigger>
+        </Configuration>
+        <Windows>
+            <Graph Show="1" />
+            <Watch Show="1" />
+        </Windows>
+        <SelectedSymbols>
+            <Symbol>
+                <Options Name="f32Position" Address="0x200003FC" Type="float" TypeID="1" Size="4" GraphColorRed="255" GraphColorGreen="0" GraphColorBlue="0" YMinSampled="0" YMaxSampled="65533.2" YAvgSampled="5850.65" Offset="4" ShowInGraph="1" YOffset="0" IsAutoConfig="0" YResolution="50000" MaxValue="-2147483648" File="C:\Users\thipo\OneDrive\Documents\DevTLHX\Projects\iRob-bot\Firmware\iRob_ETH\MDK/../App/Src\app_controlLoop.c" DrawStyle="0" NameWithParents=".tEncoderFilter.f32Position" />
+            </Symbol>
+            <Symbol>
+                <Options Name="f32Velocity" Address="0x20000400" Type="float" TypeID="1" Size="4" GraphColorRed="255" GraphColorGreen="0" GraphColorBlue="0" YMinSampled="-387.97" YMaxSampled="431.732" YAvgSampled="22.6351" Offset="8" ShowInGraph="1" YOffset="0" IsAutoConfig="0" YResolution="200" MaxValue="-2147483648" File="C:\Users\thipo\OneDrive\Documents\DevTLHX\Projects\iRob-bot\Firmware\iRob_ETH\MDK/../App/Src\app_controlLoop.c" DrawStyle="0" NameWithParents=".tEncoderFilter.f32Velocity" />
+            </Symbol>
+        </SelectedSymbols>
+    </Project>
+</JScopeProject>
