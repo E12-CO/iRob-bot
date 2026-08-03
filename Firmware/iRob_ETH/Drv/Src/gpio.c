@@ -50,7 +50,7 @@ void vGpio_initPins(void){
 	tGPIOBinit.GPIO_Pin		=
 		GPIO_PB6_TIM4_ENC_B	|
 		GPIO_PB7_TIM4_ENC_A	;
-	tGPIOBinit.GPIO_Mode	= GPIO_Mode_IN_FLOATING;
+	tGPIOBinit.GPIO_Mode	= GPIO_Mode_IPD;//GPIO_Mode_IN_FLOATING;
 	GPIO_Init(GPIOB, &tGPIOBinit);
 	
 	// Select GPIO B Alternate function with AFIO
