@@ -450,19 +450,19 @@
               <FilePath>..\Drv\Src\systick.c</FilePath>
             </File>
             <File>
-              <FileName>tim2.c</FileName>
+              <FileName>tim2_ctrl.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Drv\Src\tim2.c</FilePath>
+              <FilePath>..\Drv\Src\tim2_ctrl.c</FilePath>
             </File>
             <File>
-              <FileName>tim4.c</FileName>
+              <FileName>tim3_pwm.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Drv\Src\tim4.c</FilePath>
+              <FilePath>..\Drv\Src\tim3_pwm.c</FilePath>
             </File>
             <File>
-              <FileName>tim4.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Drv\Inc\tim4.h</FilePath>
+              <FileName>tim4_enc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Drv\Src\tim4_enc.c</FilePath>
             </File>
             <File>
               <FileName>eth_driver_D8W.c</FileName>

@@ -148,44 +148,77 @@
           <Name>UL2CM3(-S0 -C0 -P0 -FD20000000 -FC1000 -FN1 -FF0CH32F2xx -FS08000000 -FL078000 -FP0($$Device:CH32F208RB$Flash\CH32F2xx.FLM))</Name>
         </SetRegEntry>
       </TargetDriverDllRegistry>
-      <Breakpoint/>
+      <Breakpoint>
+        <Bp>
+          <Number>0</Number>
+          <Type>0</Type>
+          <LineNumber>284</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134223702</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\App\Src\app_msgtype.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\irob_eth_v1\../App/Src/app_msgtype.c\284</Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>285</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>0</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>0</BreakIfRCount>
+          <Filename>..\App\Src\app_msgtype.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression></Expression>
+        </Bp>
+      </Breakpoint>
       <WatchWindow1>
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>u8DeviceIpAddr,0x0A</ItemText>
+          <ItemText>u8IsRosClientConnected</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>phyPN</ItemText>
+          <ItemText>tCtrlLoopStatus</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>1</WinNumber>
-          <ItemText>CRCErrPktCnt</ItemText>
+          <ItemText>tEncoderFilter,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>3</count>
           <WinNumber>1</WinNumber>
-          <ItemText>PhyPolarityDetect</ItemText>
+          <ItemText>tEncoderParam,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>4</count>
           <WinNumber>1</WinNumber>
-          <ItemText>SocketInf,0x10</ItemText>
+          <ItemText>tParamStatus</ItemText>
         </Ww>
         <Ww>
           <count>5</count>
           <WinNumber>1</WinNumber>
-          <ItemText>u8IsRosClientConnected</ItemText>
+          <ItemText>tPIDSpeedCtrl</ItemText>
         </Ww>
       </WatchWindow1>
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
           <SubType>0</SubType>
-          <ItemText>0xE0042004</ItemText>
+          <ItemText>0x200008B0</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow1>
@@ -195,7 +228,7 @@
       <DebugFlag>
         <trace>0</trace>
         <periodic>1</periodic>
-        <aLwin>0</aLwin>
+        <aLwin>1</aLwin>
         <aCover>0</aCover>
         <aSer1>0</aSer1>
         <aSer2>0</aSer2>
@@ -234,15 +267,16 @@
       <LogicAnalyzers>
         <Wi>
           <IntNumber>0</IntNumber>
-          <FirstString>phyPN &gt;&gt; 2</FirstString>
-          <SecondString>000080000000000000000000000000000000104000000000000000000000000000000000706879504E0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000001000000080B8838B941D53F18000000000000000000000000000000000000000A270008</SecondString>
-        </Wi>
-        <Wi>
-          <IntNumber>1</IntNumber>
-          <FirstString>`phyLinkReset</FirstString>
-          <SecondString>000000000000000000000000000000000000F03F000000000000000000000000000000007068794C696E6B526573657400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000100000002000000080B8838B941D53F180000000000000000000000000000000000000026270008</SecondString>
+          <FirstString>`tEncoderFilter.f32Velocity</FirstString>
+          <SecondString>0000800000000000000069C000000000000069400000000000000000000000000000000074456E636F64657246696C7465722E66333256656C6F636974790000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000700000001000000000000000000F03F18000000000000000000000000000000000000007C120008</SecondString>
         </Wi>
       </LogicAnalyzers>
+      <SystemViewers>
+        <Entry>
+          <Name>System Viewer\ETH_10M</Name>
+          <WinId>35905</WinId>
+        </Entry>
+      </SystemViewers>
       <DebugDescription>
         <Enable>1</Enable>
         <EnableFlashSeq>1</EnableFlashSeq>
@@ -414,8 +448,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Drv\Src\tim2.c</PathWithFileName>
-      <FilenameWithoutPath>tim2.c</FilenameWithoutPath>
+      <PathWithFileName>..\Drv\Src\tim2_ctrl.c</PathWithFileName>
+      <FilenameWithoutPath>tim2_ctrl.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -426,20 +460,20 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Drv\Src\tim4.c</PathWithFileName>
-      <FilenameWithoutPath>tim4.c</FilenameWithoutPath>
+      <PathWithFileName>..\Drv\Src\tim3_pwm.c</PathWithFileName>
+      <FilenameWithoutPath>tim3_pwm.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
     <File>
       <GroupNumber>3</GroupNumber>
       <FileNumber>14</FileNumber>
-      <FileType>5</FileType>
+      <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Drv\Inc\tim4.h</PathWithFileName>
-      <FilenameWithoutPath>tim4.h</FilenameWithoutPath>
+      <PathWithFileName>..\Drv\Src\tim4_enc.c</PathWithFileName>
+      <FilenameWithoutPath>tim4_enc.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
