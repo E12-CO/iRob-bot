@@ -19,6 +19,8 @@ void HardFault_Handler(void){
 	}
 }
 
+uint32_t u32EncoderTxTick = 0;
+
 int main(void){
 	__disable_irq();
 	
@@ -71,10 +73,13 @@ int main(void){
 		if(
 			u8AppTcp_isRosClientConnected()
 		){
-			vAppMsg_sendEncoderData();
-			
-			if(u8AppTcp_isThereDataToRead())
+			if(u8AppTcp_isThereDataToRead()){
+				u32EncoderTxTick = millis();
 				vAppMsg_processInputData();
+			}else if((millis() - u32EncoderTxTick) > 2){
+				u32EncoderTxTick = millis() - 2;
+				vAppMsg_sendEncoderData();
+			}
 		}
 
 	}
