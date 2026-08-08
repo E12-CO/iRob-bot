@@ -56,8 +56,8 @@ void __attribute__((section("ctrl_isr"))) TIM2_IRQHandler(void){
 	
 	// Quantization
 	if(
-		(tEncoderFilter.f32PositionDiff > -0.01f) &&
-		(tEncoderFilter.f32PositionDiff < 0.01f)
+		(tEncoderFilter.f32PositionDiff > -0.001f) &&
+		(tEncoderFilter.f32PositionDiff < 0.001f)
 	)
 		tEncoderFilter.f32PositionDiff = 0.0f;
 	
