@@ -74,6 +74,7 @@ typedef struct{
 enum eControlIndex{
 	eCONTROL_CTRL_STAT		= 0,// Control loop status
 	eCONTROL_CTRL_SETPOINT	= 1,// Control loop setpoint
+	eCONTROL_CTRL_FEEDBACK	= 2,// Control loop feedback
 	
 	eCONTROL_CTRL_LOOP_RATE = 30,// Control loop rate
 	eCONTROL_CTRL_ON_OFF	= 31,// Control loop On/Off	
@@ -98,5 +99,6 @@ typedef struct{
 
 uint8_t u8AppMsg_init(void);
 void vAppMsg_processInputData(void);
+void vAppMsg_sendEncoderData(void);
 
 #endif

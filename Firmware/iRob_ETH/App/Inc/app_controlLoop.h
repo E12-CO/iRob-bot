@@ -76,6 +76,7 @@ extern volatile tCtrlPIDVar 	tPIDSpeedCtrl;
 extern volatile tCtrlLimit		tLimitSpeedCtrl;
 extern volatile tEncoderVar		tEncoderParam;
 extern volatile tControlStatus	tCtrlLoopStatus;
+extern volatile tEncoderEstimator tEncoderFilter;
 
 void vAppControl_init(void);
 void vAppControl_setControlRun(uint8_t u8OnOff);

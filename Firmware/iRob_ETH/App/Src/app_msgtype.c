@@ -120,7 +120,7 @@ void vAppMsg_processInputData(void){
 	if(tServerCmdPtr->regBit.bRW == eRW_READ){
 		u32TxLength = tServerCmdPtr->u8DataLength + 4; // Header + Cmd + Length + Data
 		WCHNET_SocketSend(
-			3, 
+			TCP_SOCKET_ID, 
 			(uint8_t *)&tServerCmdPtr->u8RbcHeader[0],
 			&u32TxLength
 			);
@@ -128,7 +128,7 @@ void vAppMsg_processInputData(void){
 		u32TxLength = 4; // Header + Cmd + Length
 		tServerCmdPtr->u8DataLength = 0;
 		WCHNET_SocketSend(
-			3, 
+			TCP_SOCKET_ID, 
 			(uint8_t *)&tServerCmdPtr->u8RbcHeader[0],
 			&u32TxLength
 			);
@@ -475,4 +475,26 @@ uint8_t u8AppMsg_handleDebug(
 	}	
 		
 	return 0;
+}
+
+void vAppMsg_sendEncoderData(void){
+	
+	tServerCmdPtr->regBit.bType 	= eCOMMAND_CONTROL;
+	tServerCmdPtr->regBit.bIndex 	= eCONTROL_CTRL_FEEDBACK;
+	tServerCmdPtr->regBit.bRW		= eRW_READ;
+	
+	tServerCmdPtr->u8DataLength = sizeof(float) * 2;
+	
+	*(float *)(tServerCmdPtr->u8InDataPtr + 0x00) = 
+		tEncoderFilter.f32Position;
+	*(float *)(tServerCmdPtr->u8InDataPtr + 0x04) = 
+		tEncoderFilter.f32Velocity;
+	
+	u32TxLength = tServerCmdPtr->u8DataLength + 4;
+	
+	WCHNET_SocketSend(
+		TCP_SOCKET_ID, 
+		(uint8_t *)&tServerCmdPtr->u8RbcHeader[0],
+		&u32TxLength
+		);
 }

@@ -69,10 +69,12 @@ int main(void){
 		
 		// Process input data
 		if(
-			u8AppTcp_isRosClientConnected() &&
-			u8AppTcp_isThereDataToRead()
+			u8AppTcp_isRosClientConnected()
 		){
-			vAppMsg_processInputData();
+			vAppMsg_sendEncoderData();
+			
+			if(u8AppTcp_isThereDataToRead())
+				vAppMsg_processInputData();
 		}
 
 	}

@@ -162,7 +162,7 @@ void vAppTcp_handleSocketInterrupt(
     if (u8SocketStatus & SINT_STAT_RECV){
 		
 		// Handle TCP receiver
-		if(u8SocketId == 3){
+		if(u8SocketId == TCP_SOCKET_ID){
 			if( u32TcpRecvLen = WCHNET_SocketRecvLen(u8SocketId, NULL),
 				u32TcpRecvLen > 0){
 				WCHNET_SocketRecv(
@@ -183,7 +183,7 @@ void vAppTcp_handleSocketInterrupt(
 	// Socket connected
     if (u8SocketStatus & SINT_STAT_CONNECT){
 		// Handle a single TCP connection
-		if(u8SocketId == 3){
+		if(u8SocketId == TCP_SOCKET_ID){
 			u8IsRosClientConnected = 1;
 			
 			WCHNET_SocketSetKeepLive(u8SocketId, ENABLE);
