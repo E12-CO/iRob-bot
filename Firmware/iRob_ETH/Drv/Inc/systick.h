@@ -7,7 +7,7 @@
 void vSystick_init(
 	const uint32_t f_cpu, 
 	const uint32_t Hz);
-uint32_t u32Millis();
+uint32_t millis();
 void vDelay_ms(uint32_t ms);
 
 #endif
