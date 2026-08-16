@@ -122,9 +122,11 @@ void __attribute__((section("ctrl_isr"))) TIM2_IRQHandler(void){
 		// Limit (Saturation)
 		if(tPIDSpeedCtrl.f32Command > 4095){
 			tPIDSpeedCtrl.f32Command = 4095;
+			tPIDSpeedCtrl.f32Intg = 4095.0f;
 			tCtrlLoopStatus.regBit.bControlSaturate = 1;
 		}else if(tPIDSpeedCtrl.f32Command < -4095){
 			tPIDSpeedCtrl.f32Command = -4095;
+			tPIDSpeedCtrl.f32Intg = -4095.0f;
 			tCtrlLoopStatus.regBit.bControlSaturate = 1;
 		}else{
 			tCtrlLoopStatus.regBit.bControlSaturate = 0;
@@ -152,7 +154,10 @@ void __attribute__((section("ctrl_isr"))) TIM2_IRQHandler(void){
 			
 		
 		tPIDSpeedCtrl.f32PrevErr = tPIDSpeedCtrl.f32Err;
-	}else{// If control loop is not running
+	}else if (
+		(tCtrlLoopStatus.regBit.bControlRunning == 0) 	&& 
+		(tPIDSpeedCtrl.u32ControlLoopCanRun == 0)	
+	){// If control loop is not running
 		tPIDSpeedCtrl.f32Setpoint 	= 0.0f;
 		tPIDSpeedCtrl.f32Intg		= 0.0f;
 		tPIDSpeedCtrl.f32Diff		= 0.0f;
