@@ -6,7 +6,7 @@ void vTim2_initLoopTimer(void){
 	// Enable TIM2 clock 
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 
-	// Set up the prescaler and leave the ARR out for now
+	// Set up the prescaler and ARR
 	tTim2InitStruct.TIM_Prescaler 	= SYSCLK_FREQ_120MHz_HSE / LOOP_BASE_CLK;// Divide 120MHz by 10k to get the value for 10kHz clock
 	tTim2InitStruct.TIM_Period		= LOOP_RATE_2KHZ;
 	tTim2InitStruct.TIM_CounterMode	= TIM_CounterMode_Up;
