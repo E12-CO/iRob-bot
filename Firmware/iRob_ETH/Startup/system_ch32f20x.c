@@ -745,7 +745,7 @@ static void SetSysClockTo120_HSE(void)
     /* PCLK2 = HCLK */
     RCC->CFGR0 |= (uint32_t)RCC_PPRE2_DIV1;
     /* PCLK1 = HCLK */
-    RCC->CFGR0 |= (uint32_t)RCC_PPRE1_DIV2;
+    RCC->CFGR0 |= (uint32_t)RCC_PPRE1_DIV1;
 
      /*  CH32F20x_D6-PLL configuration: PLLCLK = HSE * 15 = 120 MHz (HSE=8Mhz)
       *  CH32F20x_D8-PLL configuration: PLLCLK = HSE * 15 = 120 MHz (HSE=8Mhz)
