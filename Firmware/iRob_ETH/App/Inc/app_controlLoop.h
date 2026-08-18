@@ -1,6 +1,7 @@
 #ifndef APP_CONTROLLOOP_H
 #define APP_CONTROLLOOP_H
 
+#include "gpio.h"
 #include "tim2.h"
 #include "tim3.h"
 #include "tim4.h"

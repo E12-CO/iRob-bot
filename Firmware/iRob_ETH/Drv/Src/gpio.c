@@ -24,10 +24,10 @@ void vGpio_initPins(void){
 	GPIO_Init(GPIOA, &tGPIOAinit);
 	
 	// Initialize GPIO B - Output
-//	tGPIOBinit.GPIO_Pin		= GPIO_PB3_DRVEN_R;
-//	tGPIOBinit.GPIO_Mode	= GPIO_Mode_Out_PP;
-//	tGPIOBinit.GPIO_Speed = GPIO_Speed_50MHz;
-//	GPIO_Init(GPIOB, &tGPIOBinit);
+	tGPIOBinit.GPIO_Pin		= GPIO_PB5_DRV_POL;
+	tGPIOBinit.GPIO_Mode	= GPIO_Mode_Out_PP;
+	tGPIOBinit.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOB, &tGPIOBinit);
 	
 	// Initialize GPIO B - Input pullup
 	tGPIOBinit.GPIO_Pin		= 
@@ -41,8 +41,7 @@ void vGpio_initPins(void){
 	
 	// Initialize GPIO B - Alternate functions Output
 	tGPIOBinit.GPIO_Pin		= 
-		GPIO_PB4_TIM3_CH1	|
-		GPIO_PB5_TIM3_CH2	;
+		GPIO_PB4_TIM3_CH1	;
 	tGPIOBinit.GPIO_Mode	= GPIO_Mode_AF_PP;
 	GPIO_Init(GPIOB, &tGPIOBinit);
 	
@@ -60,10 +59,12 @@ void vGpio_initPins(void){
 	GPIO_PinRemapConfig(GPIO_Remap_TIM4, DISABLE);
 	
 	// Initialize GPIO D - Output
-	tGPIODinit.GPIO_Pin		= GPIO_PD2_DRVEN_L;
+	tGPIODinit.GPIO_Pin		= GPIO_PD2_DRVEN;
 	tGPIODinit.GPIO_Mode	= GPIO_Mode_Out_PP;
 	tGPIODinit.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOD, &tGPIODinit);
+	
+	DRVEN_OFF;// Off the driver by default
 }
 
 uint8_t vGpio_readIPConfigPins(void){

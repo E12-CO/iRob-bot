@@ -141,15 +141,16 @@ void __attribute__((section("ctrl_isr"))) TIM2_IRQHandler(void){
 		
 		tPIDSpeedCtrl.i16Command = (int16_t)tPIDSpeedCtrl.f32Command;
 		
+		DRVEN_ON;
 		if(tPIDSpeedCtrl.i16Command > 0){
 			SETPWM_1(tPIDSpeedCtrl.i16Command);
-			SETPWM_2(0);
+			DRV_L;
 		}else if(tPIDSpeedCtrl.i16Command < 0){
-			SETPWM_1(0);
-			SETPWM_2(-tPIDSpeedCtrl.i16Command);
+			SETPWM_1(4095 + tPIDSpeedCtrl.i16Command);// Invert the PWM
+			DRV_H;
 		}else{
 			SETPWM_1(0);
-			SETPWM_2(0);
+			DRV_L;
 		}
 			
 		
@@ -162,7 +163,8 @@ void __attribute__((section("ctrl_isr"))) TIM2_IRQHandler(void){
 		tPIDSpeedCtrl.f32Intg		= 0.0f;
 		tPIDSpeedCtrl.f32Diff		= 0.0f;
 		SETPWM_1(0);
-		SETPWM_2(0);
+		DRV_L;
+		DRVEN_OFF;
 	}
 	
 	TIM_ClearITPendingBit(TIM2, TIM_IT_Update);

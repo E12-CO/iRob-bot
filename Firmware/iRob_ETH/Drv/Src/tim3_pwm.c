@@ -8,21 +8,18 @@ void vTim3_initPWMTimer(void){
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
 
 	// Set up the prescaler and set ARR to 4095 for 12-bit PWM
-	tTim3InitStruct.TIM_Prescaler 	= SYSCLK_FREQ_120MHz_HSE / PWM_BASE_CLK;
-	tTim3InitStruct.TIM_Period		= 4096 - 1;
+	tTim3InitStruct.TIM_Prescaler 	= 2 - 1; // Divide 120MHz by 2 to get 60MHz
+	tTim3InitStruct.TIM_Period		= 4096 - 1;// Roughtly 14.6kHz PWM
 	tTim3InitStruct.TIM_CounterMode	= TIM_CounterMode_Up;
 	TIM_TimeBaseInit(TIM3, &tTim3InitStruct);
 	
 	tTim3PwmInitStruct.TIM_OCMode		= TIM_OCMode_PWM1;
-	tTim3PwmInitStruct.TIM_OCPolarity	= TIM_OCPolarity_Low;
+	tTim3PwmInitStruct.TIM_OCPolarity	= TIM_OCPolarity_High;
 	tTim3PwmInitStruct.TIM_Pulse		= 0x0000;
 	
 	TIM_OC1Init(TIM3, &tTim3PwmInitStruct);
-	TIM_OC1Init(TIM3, &tTim3PwmInitStruct);
-	
+	TIM_CCxCmd(TIM3, TIM_Channel_1, TIM_CCx_Enable);
 	TIM_SetCompare1(TIM3, 0);
-	TIM_SetCompare2(TIM3, 0);
-
 }
 
 void vTim3_stopPWMTimer(void){
