@@ -80,6 +80,10 @@ int main(void){
 				u32EncoderTxTick = millis() - 2;
 				vAppMsg_sendEncoderData();
 			}
+		}else{
+			// Stop control loop of not connected
+			if(u8AppControl_getControlRunStatus() != 0)
+				vAppControl_setControlRun(0);
 		}
 
 	}
