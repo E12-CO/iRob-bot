@@ -17,6 +17,7 @@ const uint8_t u8LoopTickTable[6] = {
 };
 
 #define MAIN_LOOP_DT	0.0005f	// 500us
+#define MAIN_LOOP_DT_INV	(1.0f/MAIN_LOOP_DT) 
 
 uint8_t u8ControlLoopRateNow = eLOOP_RATE_50HZ;
 volatile __attribute__((section("ctrl_var"))) uint32_t u32LoopTick;
@@ -41,30 +42,20 @@ void __attribute__((section("ctrl_isr"))) TIM2_IRQHandler(void){
 	tEncoderFilter.f32Position += tEncoderFilter.f32Velocity * MAIN_LOOP_DT;
 	// roll over and roll under handling
 	// Because our TIM encoder counter count from 0 to 63365 and back to 0
-	if(tEncoderFilter.f32Position > 65536.0f)
-		tEncoderFilter.f32Position -= 65536.0f;
-	if(tEncoderFilter.f32Position < 0.0f)
-		tEncoderFilter.f32Position += 65536.0f;
+//	if(tEncoderFilter.f32Position >= 65536.0f)
+//		tEncoderFilter.f32Position -= 65536.0f;
+//	if(tEncoderFilter.f32Position < 0.0f)
+//		tEncoderFilter.f32Position += 65536.0f;
 	
 	// Error comparator, compare the predicted position with the actual position
-	//if(tEncoderParam.u16CurrentEncCount != tEncoderParam.u16PrevEncCount){
 		tEncoderFilter.f32PositionDiff = 
-				tEncoderParam.u16CurrentEncCount - 
+				(float)tEncoderParam.u16CurrentEncCount - 
 				tEncoderFilter.f32Position;
-	//}
-	tEncoderParam.u16PrevEncCount = tEncoderParam.u16CurrentEncCount;
-	
-	// Quantization
-	if(
-		(tEncoderFilter.f32PositionDiff > -0.001f) &&
-		(tEncoderFilter.f32PositionDiff < 0.001f)
-	)
-		tEncoderFilter.f32PositionDiff = 0.0f;
-	
+
 	// Handling the encoder diff roll over
-	if(tEncoderFilter.f32PositionDiff > 32767.0f)// rotation backward from 0 back to 65535 
+	if(tEncoderFilter.f32PositionDiff >= 32768.0f)// rotation backward from 0 back to 65535 
 		tEncoderFilter.f32PositionDiff -= 65536.0f;
-	if(tEncoderFilter.f32PositionDiff < -32768.0f)// rotation forward from 65535 to 0
+	if(tEncoderFilter.f32PositionDiff <= -32768.0f)// rotation forward from 65535 to 0
 		tEncoderFilter.f32PositionDiff += 65536.0f;
 	
 	// Update step, update the final encoder position value as well as velocity
@@ -73,15 +64,8 @@ void __attribute__((section("ctrl_isr"))) TIM2_IRQHandler(void){
 		tEncoderFilter.f32PositionDiff;
 	tEncoderFilter.f32Velocity += 
 		tEncoderFilter.f32Ki			*
-		tEncoderFilter.f32PositionDiff 	* 
-		MAIN_LOOP_DT;
-	
-	// Quantization
-	if(
-		(tEncoderFilter.f32Velocity > -0.01f) &&
-		(tEncoderFilter.f32Velocity < 0.01f)
-	)
-		tEncoderFilter.f32Velocity = 0.0f;
+		tEncoderFilter.f32PositionDiff	*
+		MAIN_LOOP_DT_INV;
 	
 	// Convert the encoder count/s (CPS) to RPM
 	tEncoderParam.f32EncoderRPM = 
@@ -143,11 +127,11 @@ void __attribute__((section("ctrl_isr"))) TIM2_IRQHandler(void){
 		
 		DRVEN_ON;
 		if(tPIDSpeedCtrl.i16Command > 0){
-			SETPWM_1(tPIDSpeedCtrl.i16Command);
-			DRV_L;
-		}else if(tPIDSpeedCtrl.i16Command < 0){
 			SETPWM_1(4095 + tPIDSpeedCtrl.i16Command);// Invert the PWM
 			DRV_H;
+		}else if(tPIDSpeedCtrl.i16Command < 0){
+			SETPWM_1(tPIDSpeedCtrl.i16Command);
+			DRV_L;
 		}else{
 			SETPWM_1(0);
 			DRV_L;
@@ -179,8 +163,8 @@ void vAppControl_init(void){
 	tEncoderFilter.f32Velocity = 0.0f;
 	tEncoderFilter.f32PositionDiff = 0.0f;
 	
-	tEncoderFilter.f32Kp = 0.25f;
-	tEncoderFilter.f32Ki = 2000.0f;
+	tEncoderFilter.f32Kp = 0.80f;
+	tEncoderFilter.f32Ki = 0.001f;
 	
 	// Set the default CPR to 1
 	tEncoderParam.u32EncoderCPR = 1;

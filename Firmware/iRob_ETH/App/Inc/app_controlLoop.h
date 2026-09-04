@@ -36,7 +36,6 @@ typedef struct{
 	float	 f32GearRatio;
 	
 	uint16_t u16CurrentEncCount;
-	uint16_t u16PrevEncCount;
 	float f32EncoderRPM;
 }tEncoderVar;
 
