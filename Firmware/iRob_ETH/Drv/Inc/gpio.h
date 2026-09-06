@@ -12,8 +12,10 @@ void vGpio_initPins(void);
 
 #define GPIO_PA1_VINSENSE_P		GPIO_Pin_1
 #define GPIO_PA2_VINSENSE_N		GPIO_Pin_2
+#define GPIO_PA15_LED1_A		GPIO_Pin_15
 
 // PORT-B
+#define GPIO_PB1_SW_0			GPIO_Pin_1
 #define GPIO_PB4_TIM3_CH1		GPIO_Pin_4
 #define GPIO_PB5_DRV_POL		GPIO_Pin_5
 #define GPIO_PB6_TIM4_ENC_B		GPIO_Pin_6
@@ -28,7 +30,8 @@ void vGpio_initPins(void);
 #define GPIO_PC7_RD_PHY_N		GPIO_Pin_7
 #define GPIO_PC8_TD_PHY_P		GPIO_Pin_8
 #define GPIO_PC9_TD_PHY_N		GPIO_Pin_9
-#define GPIO_PC11_ACTLED		GPIO_Pin_11
+#define GPIO_PC10_ACTLED		GPIO_Pin_10
+#define GPIO_PC11_LED2_A		GPIO_Pin_11
 #define GPIO_PC12_LINKLED		GPIO_Pin_12
 
 // PORT-D
@@ -42,5 +45,9 @@ void vGpio_initPins(void);
 
 void vGpio_initPins(void);
 uint8_t vGpio_readIPConfigPins(void);
+void vGpio_setLinkLed(uint8_t mode);
+void vGpio_setActLed(uint8_t mode);
+void vGpio_ledToggleTask(void);
+
 
 #endif

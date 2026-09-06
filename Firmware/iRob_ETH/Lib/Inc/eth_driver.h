@@ -20,6 +20,8 @@
 
 #include "wchnet.h"
 
+#include "gpio.h"
+
 #define Delay_Ms(x)		{}
 #define Delay_Us(x)		{}
 

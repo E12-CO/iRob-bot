@@ -388,15 +388,15 @@ void ETH_LedDataSet( uint8_t mode )
  */
 void ETH_LedConfiguration(void)
 {
-    GPIO_InitTypeDef  GPIO={0};
+//    GPIO_InitTypeDef  GPIO={0};
 
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC,ENABLE);
-    GPIO.GPIO_Pin = GPIO_Pin_11|GPIO_Pin_12;
-    GPIO.GPIO_Mode = GPIO_Mode_Out_PP;
-    GPIO.GPIO_Speed = GPIO_Speed_50MHz;
-    GPIO_Init(GPIOC,&GPIO);
-    ETH_LedDataSet(LED_OFF);
-    ETH_LedLinkSet(LED_OFF);
+//    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC,ENABLE);
+//    GPIO.GPIO_Pin = GPIO_Pin_11|GPIO_Pin_12;
+//    GPIO.GPIO_Mode = GPIO_Mode_Out_PP;
+//    GPIO.GPIO_Speed = GPIO_Speed_50MHz;
+//    GPIO_Init(GPIOC,&GPIO);
+//    ETH_LedDataSet(LED_OFF);
+//    ETH_LedLinkSet(LED_OFF);
 }
 
 /*********************************************************************
@@ -747,8 +747,8 @@ uint8_t ETH_LibInit( uint8_t *ip, uint8_t *gwip, uint8_t *mask, uint8_t *macaddr
     cfg.ARPTableNum = WCHNET_NUM_ARP_TABLE;
     cfg.MiscConfig0 = WCHNET_MISC_CONFIG0;
     cfg.MiscConfig1 = WCHNET_MISC_CONFIG1;// Max socket number here in the macro
-    cfg.led_link = ETH_LedLinkSet;
-    cfg.led_data = ETH_LedDataSet;
+    cfg.led_link = vGpio_setLinkLed;
+    cfg.led_data = vGpio_setActLed;
     cfg.net_send = ETH_TxPktChainMode;
     cfg.CheckValid = WCHNET_CFG_VALID;
     s = WCHNET_ConfigLIB(&cfg);

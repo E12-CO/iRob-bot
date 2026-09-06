@@ -64,6 +64,9 @@ int main(void){
 		// Run the IP task in the super loop
 		WCHNET_MainTask();
 		
+		// LED toggle task
+		vGpio_ledToggleTask();
+		
 		// Handle connection and socket interrupts
 		if(WCHNET_QueryGlobalInt()){
             vAppTcp_handleIpInterrupt();
