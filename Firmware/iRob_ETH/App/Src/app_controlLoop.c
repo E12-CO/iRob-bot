@@ -72,6 +72,13 @@ void __attribute__((section("ctrl_isr"))) TIM2_IRQHandler(void){
 		(tEncoderFilter.f32Velocity * 60.0f) /
 		(float)tEncoderParam.u32EncoderCPR;
 	
+	// Add the deadband to input command
+	if(
+		(tPIDSpeedCtrl.f32Setpoint > -0.0009f) &&
+		(tPIDSpeedCtrl.f32Setpoint  < 0.0009f)
+	)
+		tPIDSpeedCtrl.f32Setpoint = 0.0f;
+	
 	if(tPIDSpeedCtrl.u32ControlLoopCanRun > 0)
 		tPIDSpeedCtrl.u32ControlLoopCanRun--;
 	
