@@ -366,7 +366,7 @@ uint8_t u8AppMsg_handleControl(
 				return 1;
 			
 			if(u8ControlReadWrite == eRW_WRITE){
-				tPIDSpeedCtrl.f32Setpoint = *(float *)pControlDataPtr;
+				tPIDSpeedCtrl.f32Setpoint = *(float *)&pControlDataPtr[0];
 			}else{
 				tServerCmdPtr->u8DataLength = sizeof(float);
 				*(float *)tServerCmdPtr->u8InDataPtr = tPIDSpeedCtrl.f32Setpoint;
