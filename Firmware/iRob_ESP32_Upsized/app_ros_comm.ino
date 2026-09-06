@@ -1,5 +1,7 @@
-#define ROS_COMM_RX_SIZE    13
-#define ROS_COMM_TX_SIZE    32
+#include <stddef.h>
+#include <string.h>
+
+#define ROS_COMM_BAUD       115200
 
 typedef struct __attribute__((packed)){
   // Send by PC
@@ -56,6 +58,16 @@ typedef struct __attribute__((packed)){
   uint8_t cks;
 }ros_rbc_ioPacket_t;
 
+// Keep the wire sizes tied to the packed packet layout.  A stale firmware
+// previously used a 29-byte reply, while the ROS interface expects all 32
+// bytes beginning at ajbHeader (including mouseVel and cks).
+static const size_t ROS_COMM_RX_SIZE = offsetof(ros_rbc_ioPacket_t, ajbHeader);
+static const size_t ROS_COMM_TX_SIZE =
+  sizeof(ros_rbc_ioPacket_t) - ROS_COMM_RX_SIZE;
+
+static_assert(ROS_COMM_RX_SIZE == 13, "ROS command frame must be 13 bytes");
+static_assert(ROS_COMM_TX_SIZE == 32, "ROS feedback frame must be 32 bytes");
+
 // state machine enum
 enum ROS_COMM_FSM{
   COMMSTATE_WAITFORREPLY    = 0, // Wait for Header match, then process the message
@@ -85,6 +97,8 @@ uint8_t rx_timeOutFlag = 0;
 uint8_t tx_fsm = 0;
 uint8_t tx_pointer_idx = 0;
 uint8_t tx_done = 0;
+uint8_t tx_wire_packet[ROS_COMM_TX_SIZE];
+uint8_t tx_wire_packet_ready = 0;
 
 uint8_t prevWriteAvailable = 0;
 
@@ -98,7 +112,10 @@ void app_ros_comm_init(
   wheelvel_t          *m_cmdvel_ptr_t,
   wheelvel_t          *m_fbvel_ptr_t
   ){
-  Serial.begin(230400);  
+  // The reply is 32 bytes. Reserve enough buffering for a complete frame;
+  // some ESP32 serial configurations otherwise accept only a partial write.
+  Serial.setTxBufferSize(256);
+  Serial.begin(ROS_COMM_BAUD);  
   rx_ptr = (uint8_t *)&rbc_Packet_t;
 
   imu_gyro_data_ptr_t   = gyro_ptr_t;
@@ -179,12 +196,34 @@ void app_ros_comm_txPoll(){
 
     case 1:// Write data to TX buffer
     {
-      Serial.write(
-        (uint8_t *)(&rbc_Packet_t.ajbHeader),
-        ROS_COMM_TX_SIZE
-      ); 
+      if(tx_wire_packet_ready == 0){
+        memcpy(
+          tx_wire_packet,
+          (const uint8_t *)(&rbc_Packet_t.ajbHeader),
+          ROS_COMM_TX_SIZE
+        );
+        tx_wire_packet_ready = 1;
+      }
 
-      tx_fsm = 2;
+      size_t bytes_remaining = ROS_COMM_TX_SIZE - tx_pointer_idx;
+      size_t writable = Serial.availableForWrite();
+      if(writable == 0)
+        break;
+
+      if(writable > bytes_remaining)
+        writable = bytes_remaining;
+
+      size_t bytes_written = Serial.write(
+        tx_wire_packet + tx_pointer_idx,
+        writable
+      );
+      tx_pointer_idx += bytes_written;
+
+      if(tx_pointer_idx == ROS_COMM_TX_SIZE){
+        tx_pointer_idx = 0;
+        tx_wire_packet_ready = 0;
+        tx_fsm = 2;
+      }
     }
     break;
 
@@ -193,6 +232,9 @@ void app_ros_comm_txPoll(){
       if(Serial.availableForWrite() < 128)
         break;
 
+      // Serial.write() queues data; finish the frame before accepting the
+      // next command.
+      Serial.flush();
       tx_done = 1;  
       tx_fsm = 0;
     }
@@ -206,12 +248,17 @@ void app_ros_comm_txPoll(){
 }
 void app_ros_comm_runner(){
 
-  if((millis() - commTimeout_millis) > COMM_TIMEOUT_MS){
+  // Do not let an idle-command timeout discard bytes from a reply in flight.
+  if(
+    (comm_fsm == COMMSTATE_WAITFORREPLY) &&
+    ((millis() - commTimeout_millis) > COMM_TIMEOUT_MS)
+  ){
     commTimeout_millis = millis(); 
     comm_fsm = COMMSTATE_WAITFORREPLY;
     rx_timeOutFlag = 1;
     tx_fsm = 0;
     tx_pointer_idx = 0;
+    tx_wire_packet_ready = 0;
     rx_fsm = 0;
     motor_cmdvel_ptr_t->v1 = 0.0f;
     motor_cmdvel_ptr_t->v2 = 0.0f;
@@ -307,6 +354,8 @@ void app_ros_comm_processRX(){
     imu_accel_data_ptr_t->sz.sz16;
     
   comm_fsm = COMMSTATE_REPLYDATA;
+  tx_pointer_idx = 0;
+  tx_wire_packet_ready = 0;
   tx_fsm = 1;
 }
 
