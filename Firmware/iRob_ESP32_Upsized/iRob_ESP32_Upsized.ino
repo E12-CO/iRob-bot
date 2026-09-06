@@ -5,6 +5,7 @@
 #define LOOP_TIME_MS    (8-1) // 125Hz - 8ms
 #define SENSOR_TIME_MS  (20-1) // 50Hz - 20ms
 #define COMM_TIMEOUT_MS (40-1) // 40ms communication timeout
+#define USE_MPU         0
 
 // Private Pointers
 
@@ -63,10 +64,12 @@ void loop0(void *pvParameters){
     }    
 
     if(app_ros_comm_TxDone()){
+#if USE_MPU
       mpu_getData(
         &gyroData_t,
         &accelData_t
       );
+#endif
     }
   }
   
@@ -74,9 +77,11 @@ void loop0(void *pvParameters){
 
 void irob_init(){
   pinMode(2, OUTPUT);
+#if USE_MPU
   mpu_init();
   delay(10);
   mpu_gyroCalRoutine(&gyroData_t);
+#endif
   app_ros_comm_init(
     &gyroData_t,
     &accelData_t,
