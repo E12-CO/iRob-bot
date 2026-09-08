@@ -25,7 +25,7 @@ motor_var_t mec_m1_t = {
   .prev_speed = 0.0,
   .e_speed = 0.0,
   .Intg_e_speed = 0.0,
-  .speed_cmd = 0.0
+  .speed_cmd = 0
 };
 
 motor_var_t mec_m2_t = {
@@ -36,7 +36,7 @@ motor_var_t mec_m2_t = {
   .prev_speed = 0.0,
   .e_speed = 0.0,
   .Intg_e_speed = 0.0,
-  .speed_cmd = 0.0
+  .speed_cmd = 0
 };
 
 motor_var_t mec_m3_t = {
@@ -47,7 +47,7 @@ motor_var_t mec_m3_t = {
   .prev_speed = 0.0,
   .e_speed = 0.0,
   .Intg_e_speed = 0.0,
-  .speed_cmd = 0.0
+  .speed_cmd = 0
 };
 
 motor_var_t mec_m4_t = {
@@ -58,7 +58,7 @@ motor_var_t mec_m4_t = {
   .prev_speed = 0.0,
   .e_speed = 0.0,
   .Intg_e_speed = 0.0,
-  .speed_cmd = 0.0
+  .speed_cmd = 0
 };
 
 void motor_Init(wheelvel_t *mec_wheelvel) {
