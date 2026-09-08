@@ -190,6 +190,11 @@
           <WinNumber>1</WinNumber>
           <ItemText>tLimitSpeedCtrl</ItemText>
         </Ww>
+        <Ww>
+          <count>8</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>u8DeviceIpAddr,0x0A</ItemText>
+        </Ww>
       </WatchWindow1>
       <MemoryWindow1>
         <Mm>
@@ -250,12 +255,12 @@
       </LogicAnalyzers>
       <SystemViewers>
         <Entry>
-          <Name>System Viewer\RCC</Name>
-          <WinId>35903</WinId>
+          <Name>System Viewer\GPIOB</Name>
+          <WinId>35905</WinId>
         </Entry>
         <Entry>
-          <Name>System Viewer\TIM3</Name>
-          <WinId>35905</WinId>
+          <Name>System Viewer\RCC</Name>
+          <WinId>35903</WinId>
         </Entry>
       </SystemViewers>
       <DebugDescription>
