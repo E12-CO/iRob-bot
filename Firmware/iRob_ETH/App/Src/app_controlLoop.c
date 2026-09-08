@@ -42,10 +42,10 @@ void __attribute__((section("ctrl_isr"))) TIM2_IRQHandler(void){
 	tEncoderFilter.f32Position += tEncoderFilter.f32Velocity * MAIN_LOOP_DT;
 	// roll over and roll under handling
 	// Because our TIM encoder counter count from 0 to 63365 and back to 0
-//	if(tEncoderFilter.f32Position >= 65536.0f)
-//		tEncoderFilter.f32Position -= 65536.0f;
-//	if(tEncoderFilter.f32Position < 0.0f)
-//		tEncoderFilter.f32Position += 65536.0f;
+	if(tEncoderFilter.f32Position >= 65536.0f)
+		tEncoderFilter.f32Position -= 65536.0f;
+	if(tEncoderFilter.f32Position < 0.0f)
+		tEncoderFilter.f32Position += 65536.0f;
 	
 	// Error comparator, compare the predicted position with the actual position
 		tEncoderFilter.f32PositionDiff = 
@@ -134,10 +134,10 @@ void __attribute__((section("ctrl_isr"))) TIM2_IRQHandler(void){
 		
 		DRVEN_ON;
 		if(tPIDSpeedCtrl.i16Command > 0){
-			SETPWM_1(4095 + tPIDSpeedCtrl.i16Command);// Invert the PWM
+			SETPWM_1(4095 - tPIDSpeedCtrl.i16Command);
 			DRV_H;
 		}else if(tPIDSpeedCtrl.i16Command < 0){
-			SETPWM_1(tPIDSpeedCtrl.i16Command);
+			SETPWM_1(-tPIDSpeedCtrl.i16Command);// Invert the PWM
 			DRV_L;
 		}else{
 			SETPWM_1(0);
@@ -171,7 +171,7 @@ void vAppControl_init(void){
 	tEncoderFilter.f32PositionDiff = 0.0f;
 	
 	tEncoderFilter.f32Kp = 0.80f;
-	tEncoderFilter.f32Ki = 0.001f;
+	tEncoderFilter.f32Ki = 0.05f;
 	
 	// Set the default CPR to 1
 	tEncoderParam.u32EncoderCPR = 1;
