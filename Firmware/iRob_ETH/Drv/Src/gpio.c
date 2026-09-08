@@ -60,6 +60,7 @@ void vGpio_initPins(void){
 	tGPIOBinit.GPIO_Pin		= 
 		GPIO_PB4_TIM3_CH1	;
 	tGPIOBinit.GPIO_Mode	= GPIO_Mode_AF_PP;
+	tGPIOBinit.GPIO_Speed	= GPIO_Speed_50MHz;
 	GPIO_Init(GPIOB, &tGPIOBinit);
 	
 	// Initialize GPIO B - Alternate functions Input
