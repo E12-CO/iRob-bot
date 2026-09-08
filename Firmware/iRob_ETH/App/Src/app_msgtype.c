@@ -488,7 +488,7 @@ void vAppMsg_sendEncoderData(void){
 	*(float *)(tServerCmdPtr->u8InDataPtr + 0x00) = 
 		tEncoderFilter.f32Position;
 	*(float *)(tServerCmdPtr->u8InDataPtr + 0x04) = 
-		tEncoderFilter.f32Velocity;
+		tEncoderParam.f32EncoderRPM;
 	
 	u32TxLength = tServerCmdPtr->u8DataLength + 4;
 	
