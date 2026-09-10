@@ -12,6 +12,8 @@
 #include "app_msgtype.h"
 #include "app_controlLoop.h"
 
+#define DELAY_STARTUP_TICKS		1000 // Delay startup for 1 sec
+
 void HardFault_Handler(void){
 
 	while(1){
@@ -31,8 +33,15 @@ int main(void){
 		SYSCLK_FREQ_120MHz_HSE,
 		1000
 	);
+	
 	// Initialize GPIO
 	vGpio_initPins();
+	
+	// VCC stabilize
+	__enable_irq();
+	while(millis() < DELAY_STARTUP_TICKS);
+	__disable_irq();
+	
 	// Initialize TIM2 control loop timer
 	vTim2_initLoopTimer();
 	// Initilize TIM3 PWM timer
@@ -52,8 +61,8 @@ int main(void){
 //	DBGMCU->CFGR |= 
 //		(1 << 5) | 		// TRACE_IOEN
 //		(0 << 6) ;		// TRACE_MODE -> Async UART type
-	
 	__enable_irq();
+	
 	
 	vAppTcp_createRosListenSocket();
 #ifdef UDP_PORT
