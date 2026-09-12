@@ -94,6 +94,11 @@ void __attribute__((section("ctrl_isr"))) TIM2_IRQHandler(void){
 		
 		// Integrate the error
 		tPIDSpeedCtrl.f32Intg += tPIDSpeedCtrl.f32Err * tPIDSpeedCtrl.f32Ki;
+		// Integral limit to 20% of allowed duty
+		if(tPIDSpeedCtrl.f32Intg > 819.0f)
+			tPIDSpeedCtrl.f32Intg = 819.0f;
+		if(tPIDSpeedCtrl.f32Intg < -819.0f)
+			tPIDSpeedCtrl.f32Intg = -819.0f;
 		
 		// Differentiate the error
 		tPIDSpeedCtrl.f32Diff = 
@@ -113,11 +118,9 @@ void __attribute__((section("ctrl_isr"))) TIM2_IRQHandler(void){
 		// Limit (Saturation)
 		if(tPIDSpeedCtrl.f32Command > 4095){
 			tPIDSpeedCtrl.f32Command = 4095;
-			tPIDSpeedCtrl.f32Intg = 4095.0f;
 			tCtrlLoopStatus.regBit.bControlSaturate = 1;
 		}else if(tPIDSpeedCtrl.f32Command < -4095){
 			tPIDSpeedCtrl.f32Command = -4095;
-			tPIDSpeedCtrl.f32Intg = -4095.0f;
 			tCtrlLoopStatus.regBit.bControlSaturate = 1;
 		}else{
 			tCtrlLoopStatus.regBit.bControlSaturate = 0;
